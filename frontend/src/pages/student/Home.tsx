@@ -92,16 +92,11 @@ export default function StudentHome() {
     <div className="max-w-2xl mx-auto px-4 py-6 pb-10">
 
       {/* Greeting row */}
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <h1 className="font-display font-semibold text-2xl text-gray-900">
-            {t('home.hello')}, {profile?.name}! 👋
-          </h1>
-          <p className="text-sm text-muted mt-0.5">{t('home.subtitle')}</p>
-        </div>
-        <div className="bg-warning-light border border-yellow-200 px-3 py-1.5 rounded-2xl flex-shrink-0">
-          <span className="text-sm font-display font-semibold text-warning">⭐ {profile?.points ?? 0}</span>
-        </div>
+      <div className="mb-5">
+        <h1 className="font-display font-semibold text-2xl text-gray-900">
+          {t('home.hello')}, {profile?.name}! 👋
+        </h1>
+        <p className="text-sm text-muted mt-0.5">{t('home.subtitle')}</p>
       </div>
 
       {/* Pick up exactly where you left off — the single most recently worked-on,

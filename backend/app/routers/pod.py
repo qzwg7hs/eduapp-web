@@ -98,7 +98,11 @@ def submit_pod_attempt(body: PodAttemptCreate, db: Session = Depends(get_db), cu
     db.add(attempt)
 
     if pts > 0:
-        current_user.points += pts
+        # Atomic SQL-level increment — avoids losing an update when this
+        # races with another points-awarding request (see problems.py).
+        db.query(Profile).filter(Profile.id == current_user.id).update(
+            {"points": Profile.points + pts}, synchronize_session=False
+        )
 
     db.commit()
     db.refresh(attempt)
