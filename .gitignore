@@ -1,0 +1,31 @@
+# Secrets — never commit real .env files
+.env
+.env.local
+*.env
+!.env.example
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Node / frontend build output
+node_modules/
+dist/
+.vite/
+
+# Logs
+*.log
+
+# IDE / OS / local tooling
+.idea/
+.vscode/
+.claude/
+.DS_Store
+Thumbs.db
+
+# Local one-off data/scratch (not part of the deployed app)
+backend/sample-data/
