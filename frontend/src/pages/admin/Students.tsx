@@ -227,15 +227,15 @@ export default function AdminStudents() {
 
             <div>
               <label className="label">{t('admin.students.first_name')}</label>
-              <input className="input" value={m.name} onChange={e => setM(p => ({ ...p, name: e.target.value }))} placeholder="Бериk" />
+              <input className="input" value={m.name} onChange={e => setM(p => ({ ...p, name: e.target.value }))} placeholder="Name" />
             </div>
             <div>
               <label className="label">{t('admin.students.last_name')}</label>
-              <input className="input" value={m.surname} onChange={e => setM(p => ({ ...p, surname: e.target.value }))} placeholder="Миндетбаев" />
+              <input className="input" value={m.surname} onChange={e => setM(p => ({ ...p, surname: e.target.value }))} placeholder="Surname" />
             </div>
             <div>
               <label className="label">{t('admin.students.username')}</label>
-              <input className="input" value={m.username} onChange={e => setM(p => ({ ...p, username: e.target.value }))} placeholder="berik_m" autoCapitalize="none" />
+              <input className="input" value={m.username} onChange={e => setM(p => ({ ...p, username: e.target.value }))} placeholder="name_surname" autoCapitalize="none" />
             </div>
 
             {!m.editing && (

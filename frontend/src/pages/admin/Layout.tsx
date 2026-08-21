@@ -45,7 +45,7 @@ export default function AdminLayout() {
   return (
     <div className="min-h-screen flex flex-col bg-bg lg:flex-row">
       {/* Sidebar (desktop) */}
-      <aside className="hidden lg:flex flex-col w-60 bg-surface border-r border-border min-h-screen sticky top-0">
+      <aside className="hidden lg:flex flex-col w-60 bg-surface border-r border-border h-screen sticky top-0 self-start">
         <div className="p-5 border-b border-border flex items-center gap-2.5">
           <div
             className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-white font-display font-semibold text-base leading-none flex-shrink-0"
@@ -59,7 +59,7 @@ export default function AdminLayout() {
           </div>
         </div>
 
-        <nav className="flex-1 p-3 space-y-0.5">
+        <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
           {nav.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
