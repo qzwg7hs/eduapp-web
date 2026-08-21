@@ -4,6 +4,7 @@ import { Topic, SubTopic, Lesson, Problem, ProblemType, UploadResult, ContentLan
 import { ContentBlock } from '@/types'
 import LessonEditor from '@/components/LessonEditor'
 import AdminImageUpload from '@/components/AdminImageUpload'
+import LatexText from '@/components/LatexText'
 import { useI18n } from '@/contexts/I18nContext'
 import {
   Pencil, EyeOff, Globe, Trash2, ChevronRight, ChevronLeft,
@@ -72,25 +73,6 @@ function StatusBadge({ isDraft, isPublished }: { isDraft: boolean; isPublished: 
   if (isDraft) return <span className="badge bg-warning-light text-warning">{t('admin.draft')}</span>
   if (isPublished) return <span className="badge bg-success-light text-success">{t('admin.published')}</span>
   return <span className="badge bg-primary-light text-primary">{t('admin.saved')}</span>
-}
-
-function MathText({ text }: { text: string }) {
-  const ref = useRef<HTMLSpanElement>(null)
-  useEffect(() => {
-    if (!ref.current || !(window as any).katex) return
-    const katex = (window as any).katex
-    const parts = text.split(/(\$\$[\s\S]+?\$\$|\$[^$\n]+?\$)/g)
-    ref.current.innerHTML = parts.map(part => {
-      if (part.startsWith('$$') && part.endsWith('$$')) {
-        try { return katex.renderToString(part.slice(2, -2), { displayMode: true, throwOnError: false }) } catch { return part }
-      }
-      if (part.startsWith('$') && part.endsWith('$')) {
-        try { return katex.renderToString(part.slice(1, -1), { displayMode: false, throwOnError: false }) } catch { return part }
-      }
-      return part.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    }).join('')
-  }, [text])
-  return <span ref={ref} />
 }
 
 function IconBtn({
@@ -855,6 +837,16 @@ export default function AdminContent() {
               <SearchInput placeholder={t('admin.content.search_problems')} />
               {(() => {
                 const all      = problems[selectedLesson.id] ?? []
+                // Stable per-level numbering (A1, A2… B1… C10), independent of
+                // search/pagination, so admins can spot "which test this belongs
+                // to" at a glance — mirrors the Test Bank's "#N" badge.
+                const levelCounters: Record<string, number> = {}
+                const numberById = new Map<string, string>()
+                all.forEach(p => {
+                  const lvl = p.level || '—'
+                  levelCounters[lvl] = (levelCounters[lvl] ?? 0) + 1
+                  numberById.set(p.id, p.level ? `${p.level}${levelCounters[lvl]}` : `${levelCounters[lvl]}`)
+                })
                 const filtered = all.filter(p => !search || p.question.toLowerCase().includes(search.toLowerCase()))
                 const paged    = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
                 return (
@@ -868,9 +860,9 @@ export default function AdminContent() {
                       {paged.map(prob => (
                         <div key={prob.id} className={cardCls} style={cardStyle}>
                           <div className="flex items-start gap-3 px-4 py-3">
-                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 ${prob.problem_type === 'open' ? 'bg-primary-light' : 'bg-gray-100'}`}>
-                              <HelpCircle className={`w-4 h-4 ${prob.problem_type === 'open' ? 'text-primary' : 'text-gray-500'}`} />
-                            </div>
+                            <span className="flex-shrink-0 w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-600 mt-0.5">
+                              {numberById.get(prob.id)}
+                            </span>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 flex-wrap mb-1">
                                 <span className={`badge text-xs ${prob.problem_type === 'open' ? 'bg-primary-light text-primary' : 'bg-gray-100 text-gray-600'}`}>
@@ -881,7 +873,7 @@ export default function AdminContent() {
                                 {prob.level && <span className="badge bg-gray-100 text-gray-600">Level {prob.level}</span>}
                               </div>
                               <p className="text-sm text-gray-700 leading-snug">
-                                <MathText text={prob.question.slice(0, 120) + (prob.question.length > 120 ? '…' : '')} />
+                                <LatexText text={prob.question.slice(0, 120) + (prob.question.length > 120 ? '…' : '')} />
                               </p>
                             </div>
                             <div className="flex items-center gap-1 flex-shrink-0">
@@ -1078,7 +1070,7 @@ export default function AdminContent() {
                 {form.question && (
                   <div className="mt-2 p-3 bg-gray-50 rounded-lg text-sm text-gray-800">
                     <p className="text-xs text-muted mb-1">Preview:</p>
-                    <MathText text={form.question} />
+                    <LatexText text={form.question} />
                   </div>
                 )}
               </div>
