@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Baloo+2:wght@500;600;700;800&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700;6..12,900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #d9d6cf; font-family: 'Nunito Sans', system-ui, sans-serif; }
+  a { color: #2a7d5f; text-decoration: none; }
+  a:hover { color: #216a50; }
+</style>
+</helmet>
+
+<div style="min-height:100vh; padding:64px; background:#d9d6cf;">
+
+  <section style="max-width:2500px; margin:0 auto;">
+    <div style="margin-bottom:40px;">
+      <div style="font-family:'Nunito Sans'; font-weight:900; font-size:13px; letter-spacing:0.12em; text-transform:uppercase; color:#7a756b;">Turn 1 · Educational math platform · Grade 5–6</div>
+      <h1 style="font-family:'Fredoka'; font-weight:600; font-size:34px; color:#2b2820; margin:8px 0 0;">Two design directions</h1>
+      <p style="font-family:'Nunito Sans'; font-size:16px; color:#6b665c; margin:8px 0 0; max-width:640px;">Each covers Home, Learn (topics → subtopics), and the Practice exercise screen. Reference an option in chat by its badge, e.g. <strong>1a</strong> or <strong>1b</strong>.</p>
+    </div>
+
+    <div style="display:flex; gap:72px; align-items:flex-start; flex-wrap:wrap;">
+
+      <!-- ============ OPTION 1A : CALM & STRUCTURED ============ -->
+      <div id="1a" style="display:flex; flex-direction:column; gap:28px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-family:'Fredoka'; font-weight:600; font-size:15px; background:#1a3a5c; color:#fff; padding:5px 14px; border-radius:999px;">1a</span>
+          <span style="font-family:'Fredoka'; font-weight:500; font-size:20px; color:#2b2820;">Calm &amp; Structured</span>
+          <span style="font-family:'Nunito Sans'; font-size:14px; color:#7a756b;">— navy + green, sidebar app, focused</span>
+        </div>
+
+        <!-- A · HOME -->
+        <div style="width:1080px; border-radius:16px; overflow:hidden; box-shadow:0 24px 60px -20px rgba(40,40,30,0.4); background:#f7f6f3;">
+          <div style="height:38px; background:#ecebe6; display:flex; align-items:center; gap:7px; padding:0 16px; border-bottom:1px solid #e0ddd6;">
+            <span style="width:11px;height:11px;border-radius:50%;background:#e06a5b;"></span>
+            <span style="width:11px;height:11px;border-radius:50%;background:#e8b84b;"></span>
+            <span style="width:11px;height:11px;border-radius:50%;background:#5fb87a;"></span>
+            <div style="margin-left:16px; background:#fff; border:1px solid #e0ddd6; border-radius:6px; font-family:'Nunito Sans'; font-size:12px; color:#9a958b; padding:3px 14px;">mathnest.app / home</div>
+          </div>
+          <div style="display:flex; height:660px;">
+            <!-- sidebar -->
+            <div style="width:232px; background:#1a3a5c; color:#cdd7e2; padding:24px 18px; display:flex; flex-direction:column;">
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:36px;">
+                <div style="width:36px;height:36px;border-radius:10px;background:#2a7d5f;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;color:#fff;font-size:20px;">∑</div>
+                <span style="font-family:'Fredoka';font-weight:600;font-size:20px;color:#fff;">MathNest</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;background:#295080;color:#fff;padding:11px 14px;border-radius:10px;font-family:'Nunito Sans';font-weight:700;font-size:15px;margin-bottom:6px;"><span style="font-size:17px;">◧</span>Home</div>
+              <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;font-family:'Nunito Sans';font-weight:600;font-size:15px;margin-bottom:6px;"><span style="font-size:17px;">▤</span>Learn</div>
+              <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;font-family:'Nunito Sans';font-weight:600;font-size:15px;margin-bottom:6px;"><span style="font-size:17px;">◷</span>Quiz</div>
+              <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;font-family:'Nunito Sans';font-weight:600;font-size:15px;"><span style="font-size:17px;">▰</span>Progress</div>
+              <div style="margin-top:auto; background:#12314f; border-radius:12px; padding:14px;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div style="width:36px;height:36px;border-radius:50%;background:#2a7d5f;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;color:#fff;">А</div>
+                  <div><div style="font-family:'Nunito Sans';font-weight:700;font-size:14px;color:#fff;">Aizhan K.</div><div style="font-family:'Nunito Sans';font-size:12px;color:#8ba3bd;">5th grade</div></div>
+                </div>
+              </div>
+            </div>
+            <!-- main -->
+            <div style="flex:1; padding:32px 36px; overflow:hidden;">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px;">
+                <div>
+                  <div style="font-family:'Fredoka';font-weight:600;font-size:28px;color:#1a3a5c;">Hi, Aizhan! 👋</div>
+                  <div style="font-family:'Nunito Sans';font-size:15px;color:#6b7684;">Ready to solve some problems today?</div>
+                </div>
+                <div style="display:flex;gap:12px;">
+                  <div style="background:#fff;border:1px solid #e8e5df;border-radius:12px;padding:10px 16px;text-align:center;"><div style="font-family:'Fredoka';font-weight:600;font-size:22px;color:#e8850c;">🔥 6</div><div style="font-family:'Nunito Sans';font-size:12px;color:#9a958b;">day streak</div></div>
+                  <div style="background:#fff;border:1px solid #e8e5df;border-radius:12px;padding:10px 16px;text-align:center;"><div style="font-family:'Fredoka';font-weight:600;font-size:22px;color:#2a7d5f;">1 240</div><div style="font-family:'Nunito Sans';font-size:12px;color:#9a958b;">points</div></div>
+                </div>
+              </div>
+              <!-- continue card -->
+              <div style="background:#1a3a5c;border-radius:16px;padding:24px;display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;">
+                <div>
+                  <div style="font-family:'Nunito Sans';font-weight:700;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#7fa8cf;margin-bottom:8px;">Continue where you left off</div>
+                  <div style="font-family:'Fredoka';font-weight:600;font-size:22px;color:#fff;">Fractions · Comparing fractions</div>
+                  <div style="display:flex;align-items:center;gap:12px;margin-top:14px;">
+                    <div style="width:220px;height:8px;background:#12314f;border-radius:99px;overflow:hidden;"><div style="width:60%;height:100%;background:#2a7d5f;"></div></div>
+                    <span style="font-family:'Nunito Sans';font-weight:700;font-size:13px;color:#cdd7e2;">Test 3 of 5</span>
+                  </div>
+                </div>
+                <div style="background:#2a7d5f;color:#fff;font-family:'Fredoka';font-weight:600;font-size:16px;padding:13px 28px;border-radius:12px;">Resume →</div>
+              </div>
+              <div style="font-family:'Fredoka';font-weight:500;font-size:18px;color:#1a3a5c;margin-bottom:14px;">Your topics</div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+                <div style="background:#fff;border:1px solid #e8e5df;border-radius:14px;padding:18px;">
+                  <div style="width:44px;height:44px;border-radius:11px;background:#e7f2ec;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:22px;color:#2a7d5f;margin-bottom:12px;">½</div>
+                  <div style="font-family:'Fredoka';font-weight:500;font-size:16px;color:#1a3a5c;">Fractions</div>
+                  <div style="font-family:'Nunito Sans';font-size:13px;color:#9a958b;margin-bottom:12px;">6 subtopics</div>
+                  <div style="height:6px;background:#eee9e2;border-radius:99px;overflow:hidden;"><div style="width:60%;height:100%;background:#2a7d5f;"></div></div>
+                </div>
+                <div style="background:#fff;border:1px solid #e8e5df;border-radius:14px;padding:18px;">
+                  <div style="width:44px;height:44px;border-radius:11px;background:#eef0fb;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:20px;color:#4b5bd6;margin-bottom:12px;">%</div>
+                  <div style="font-family:'Fredoka';font-weight:500;font-size:16px;color:#1a3a5c;">Decimals &amp; %</div>
+                  <div style="font-family:'Nunito Sans';font-size:13px;color:#9a958b;margin-bottom:12px;">5 subtopics</div>
+                  <div style="height:6px;background:#eee9e2;border-radius:99px;overflow:hidden;"><div style="width:30%;height:100%;background:#4b5bd6;"></div></div>
+                </div>
+                <div style="background:#fff;border:1px solid #e8e5df;border-radius:14px;padding:18px;">
+                  <div style="width:44px;height:44px;border-radius:11px;background:#fbeede;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:20px;color:#c77d18;margin-bottom:12px;">△</div>
+                  <div style="font-family:'Fredoka';font-weight:500;font-size:16px;color:#1a3a5c;">Geometry</div>
+                  <div style="font-family:'Nunito Sans';font-size:13px;color:#9a958b;margin-bottom:12px;">7 subtopics</div>
+                  <div style="height:6px;background:#eee9e2;border-radius:99px;overflow:hidden;"><div style="width:10%;height:100%;background:#c77d18;"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- A · LEARN -->
+        <div style="width:1080px; border-radius:16px; overflow:hidden; box-shadow:0 24px 60px -20px rgba(40,40,30,0.4); background:#f7f6f3;">
+          <div style="height:38px; background:#ecebe6; display:flex; align-items:center; gap:7px; padding:0 16px; border-bottom:1px solid #e0ddd6;">
+            <span style="width:11px;height:11px;border-radius:50%;background:#e06a5b;"></span>
+            <span style="width:11px;height:11px;border-radius:50%;background:#e8b84b;"></span>
+            <span style="width:11px;height:11px;border-radius:50%;background:#5fb87a;"></span>
+            <div style="margin-left:16px; background:#fff; border:1px solid #e0ddd6; border-radius:6px; font-family:'Nunito Sans'; font-size:12px; color:#9a958b; padding:3px 14px;">mathnest.app / learn / fractions</div>
+          </div>
+          <div style="display:flex; height:660px;">
+            <div style="width:232px; background:#1a3a5c; color:#cdd7e2; padding:24px 18px; display:flex; flex-direction:column;">
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:36px;">
+                <div style="width:36px;height:36px;border-radius:10px;background:#2a7d5f;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;color:#fff;font-size:20px;">∑</div>
+                <span style="font-family:'Fredoka';font-weight:600;font-size:20px;color:#fff;">MathNest</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;font-family:'Nunito Sans';font-weight:600;font-size:15px;margin-bottom:6px;"><span style="font-size:17px;">◧</span>Home</div>
+              <div style="display:flex;align-items:center;gap:12px;background:#295080;color:#fff;padding:11px 14px;border-radius:10px;font-family:'Nunito Sans';font-weight:700;font-size:15px;margin-bottom:6px;"><span style="font-size:17px;">▤</span>Learn</div>
+              <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;font-family:'Nunito Sans';font-weight:600;font-size:15px;margin-bottom:6px;"><span style="font-size:17px;">◷</span>Quiz</div>
+              <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;font-family:'Nunito Sans';font-weight:600;font-size:15px;"><span style="font-size:17px;">▰</span>Progress</div>
+            </div>
+            <div style="flex:1; padding:32px 36px; overflow:hidden;">
+              <div style="display:flex;align-items:center;gap:10px;font-family:'Nunito Sans';font-size:13px;color:#9a958b;margin-bottom:6px;">Learn <span>›</span> <span style="color:#2a7d5f;font-weight:700;">Fractions</span></div>
+              <div style="font-family:'Fredoka';font-weight:600;font-size:28px;color:#1a3a5c;margin-bottom:4px;">Fractions</div>
+              <div style="font-family:'Nunito Sans';font-size:15px;color:#6b7684;margin-bottom:24px;">6 subtopics · 24 practice tests</div>
+
+              <!-- subtopic rows -->
+              <div style="display:flex;flex-direction:column;gap:12px;">
+                <div style="background:#fff;border:1px solid #e8e5df;border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:18px;">
+                  <div style="width:40px;height:40px;border-radius:50%;background:#2a7d5f;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;">✓</div>
+                  <div style="flex:1;"><div style="font-family:'Fredoka';font-weight:500;font-size:17px;color:#1a3a5c;">Understanding fractions</div><div style="font-family:'Nunito Sans';font-size:13px;color:#9a958b;">4 tests · completed</div></div>
+                  <div style="font-family:'Nunito Sans';font-weight:700;font-size:13px;color:#2a7d5f;">4 / 4</div>
+                </div>
+                <div style="background:#fff;border:2px solid #2a7d5f;border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:18px;">
+                  <div style="width:40px;height:40px;border-radius:50%;background:#e7f2ec;color:#2a7d5f;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;">½</div>
+                  <div style="flex:1;">
+                    <div style="font-family:'Fredoka';font-weight:500;font-size:17px;color:#1a3a5c;">Comparing fractions</div>
+                    <div style="display:flex;align-items:center;gap:10px;margin-top:6px;"><div style="width:180px;height:6px;background:#eee9e2;border-radius:99px;overflow:hidden;"><div style="width:60%;height:100%;background:#2a7d5f;"></div></div><span style="font-family:'Nunito Sans';font-size:13px;color:#9a958b;">3 / 5 tests</span></div>
+                  </div>
+                  <div style="background:#2a7d5f;color:#fff;font-family:'Fredoka';font-weight:600;font-size:14px;padding:9px 20px;border-radius:10px;">Continue</div>
+                </div>
+                <div style="background:#fff;border:1px solid #e8e5df;border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:18px;">
+                  <div style="width:40px;height:40px;border-radius:50%;background:#f2f0eb;color:#9a958b;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;">+</div>
+                  <div style="flex:1;"><div style="font-family:'Fredoka';font-weight:500;font-size:17px;color:#1a3a5c;">Adding &amp; subtracting</div><div style="font-family:'Nunito Sans';font-size:13px;color:#9a958b;">5 tests · not started</div></div>
+                  <div style="border:1px solid #d8d4cc;color:#6b7684;font-family:'Fredoka';font-weight:600;font-size:14px;padding:9px 20px;border-radius:10px;">Start</div>
+                </div>
+                <div style="background:#fff;border:1px solid #e8e5df;border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:18px;">
+                  <div style="width:40px;height:40px;border-radius:50%;background:#f2f0eb;color:#9a958b;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;">×</div>
+                  <div style="flex:1;"><div style="font-family:'Fredoka';font-weight:500;font-size:17px;color:#1a3a5c;">Multiplying fractions</div><div style="font-family:'Nunito Sans';font-size:13px;color:#9a958b;">4 tests · locked</div></div>
+                  <div style="font-family:'Nunito Sans';font-size:18px;color:#c9c4ba;">🔒</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- A · PRACTICE -->
+        <div style="width:1080px; border-radius:16px; overflow:hidden; box-shadow:0 24px 60px -20px rgba(40,40,30,0.4); background:#f7f6f3;">
+          <div style="height:38px; background:#ecebe6; display:flex; align-items:center; gap:7px; padding:0 16px; border-bottom:1px solid #e0ddd6;">
+            <span style="width:11px;height:11px;border-radius:50%;background:#e06a5b;"></span>
+            <span style="width:11px;height:11px;border-radius:50%;background:#e8b84b;"></span>
+            <span style="width:11px;height:11px;border-radius:50%;background:#5fb87a;"></span>
+            <div style="margin-left:16px; background:#fff; border:1px solid #e0ddd6; border-radius:6px; font-family:'Nunito Sans'; font-size:12px; color:#9a958b; padding:3px 14px;">mathnest.app / practice · comparing fractions · test 3</div>
+          </div>
+          <div style="height:660px; padding:28px 40px; display:flex; flex-direction:column;">
+            <!-- top bar -->
+            <div style="display:flex;align-items:center;gap:20px;margin-bottom:36px;">
+              <div style="width:32px;height:32px;border-radius:50%;border:1px solid #d8d4cc;display:flex;align-items:center;justify-content:center;color:#6b7684;font-size:16px;">✕</div>
+              <div style="flex:1;height:12px;background:#eae7e0;border-radius:99px;overflow:hidden;"><div style="width:40%;height:100%;background:#2a7d5f;border-radius:99px;"></div></div>
+              <div style="font-family:'Nunito Sans';font-weight:700;font-size:14px;color:#6b7684;">Question 4 of 10</div>
+            </div>
+            <!-- question -->
+            <div style="max-width:720px;margin:0 auto;width:100%;">
+              <div style="font-family:'Nunito Sans';font-weight:700;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#2a7d5f;margin-bottom:12px;">Choose the correct answer</div>
+              <div style="font-family:'Fredoka';font-weight:500;font-size:30px;color:#1a3a5c;line-height:1.3;margin-bottom:32px;">Which fraction is greater than <span style="background:#e7f2ec;padding:2px 12px;border-radius:8px;color:#2a7d5f;">3⁄5</span> ?</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div style="background:#fff;border:2px solid #e8e5df;border-radius:14px;padding:22px;display:flex;align-items:center;gap:16px;"><span style="width:32px;height:32px;border-radius:8px;background:#f2f0eb;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;color:#6b7684;">A</span><span style="font-family:'Fredoka';font-weight:500;font-size:24px;color:#1a3a5c;">2⁄5</span></div>
+                <div style="background:#fff;border:2px solid #2a7d5f;border-radius:14px;padding:22px;display:flex;align-items:center;gap:16px;box-shadow:0 6px 16px -8px rgba(42,125,95,0.5);"><span style="width:32px;height:32px;border-radius:8px;background:#2a7d5f;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;color:#fff;">B</span><span style="font-family:'Fredoka';font-weight:500;font-size:24px;color:#1a3a5c;">4⁄5</span></div>
+                <div style="background:#fff;border:2px solid #e8e5df;border-radius:14px;padding:22px;display:flex;align-items:center;gap:16px;"><span style="width:32px;height:32px;border-radius:8px;background:#f2f0eb;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;color:#6b7684;">C</span><span style="font-family:'Fredoka';font-weight:500;font-size:24px;color:#1a3a5c;">1⁄2</span></div>
+                <div style="background:#fff;border:2px solid #e8e5df;border-radius:14px;padding:22px;display:flex;align-items:center;gap:16px;"><span style="width:32px;height:32px;border-radius:8px;background:#f2f0eb;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;color:#6b7684;">D</span><span style="font-family:'Fredoka';font-weight:500;font-size:24px;color:#1a3a5c;">3⁄10</span></div>
+              </div>
+            </div>
+            <div style="margin-top:auto;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #e6e3dc;padding-top:20px;">
+              <div style="font-family:'Nunito Sans';font-weight:700;font-size:15px;color:#9a958b;">Skip</div>
+              <div style="background:#2a7d5f;color:#fff;font-family:'Fredoka';font-weight:600;font-size:17px;padding:14px 44px;border-radius:12px;">Check</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ OPTION 1B : WARM & PLAYFUL ============ -->
+      <div id="1b" style="display:flex; flex-direction:column; gap:28px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-family:'Baloo 2'; font-weight:700; font-size:15px; background:#e8622c; color:#fff; padding:5px 14px; border-radius:999px;">1b</span>
+          <span style="font-family:'Baloo 2'; font-weight:600; font-size:20px; color:#2b2820;">Warm &amp; Playful</span>
+          <span style="font-family:'Nunito Sans'; font-size:14px; color:#7a756b;">— coral + teal, top nav, chunky &amp; friendly</span>
+        </div>
+
+        <!-- B · HOME -->
+        <div style="width:1080px; border-radius:16px; overflow:hidden; box-shadow:0 24px 60px -20px rgba(60,40,20,0.4); background:#fff9f0;">
+          <div style="height:38px; background:#f4e9d8; display:flex; align-items:center; gap:7px; padding:0 16px; border-bottom:1px solid #ecdcc4;">
+            <span style="width:11px;height:11px;border-radius:50%;background:#e06a5b;"></span>
+            <span style="width:11px;height:11px;border-radius:50%;background:#e8b84b;"></span>
+            <span style="width:11px;height:11px;border-radius:50%;background:#5fb87a;"></span>
+            <div style="margin-left:16px; background:#fff; border:1px solid #ecdcc4; border-radius:6px; font-family:'Nunito Sans'; font-size:12px; color:#b0a48f; padding:3px 14px;">mathnest.app / home</div>
+          </div>
+          <!-- top nav -->
+          <div style="height:66px;background:#fff;border-bottom:1px solid #f0e5d4;display:flex;align-items:center;padding:0 32px;gap:28px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-right:14px;">
+              <div style="width:36px;height:36px;border-radius:12px;background:#e8622c;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:800;color:#fff;font-size:20px;">∑</div>
+              <span style="font-family:'Baloo 2';font-weight:700;font-size:21px;color:#2c2418;">MathNest</span>
+            </div>
+            <span style="font-family:'Nunito Sans';font-weight:800;font-size:15px;color:#e8622c;">Home</span>
+            <span style="font-family:'Nunito Sans';font-weight:700;font-size:15px;color:#8a8072;">Learn</span>
+            <span style="font-family:'Nunito Sans';font-weight:700;font-size:15px;color:#8a8072;">Quiz</span>
+            <span style="font-family:'Nunito Sans';font-weight:700;font-size:15px;color:#8a8072;">Progress</span>
+            <div style="margin-left:auto;display:flex;align-items:center;gap:16px;">
+              <span style="font-family:'Baloo 2';font-weight:700;font-size:15px;color:#e8850c;">🔥 6</span>
+              <span style="font-family:'Baloo 2';font-weight:700;font-size:15px;color:#178f8f;">⭐ 1 240</span>
+              <div style="width:38px;height:38px;border-radius:50%;background:#178f8f;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;color:#fff;">А</div>
+            </div>
+          </div>
+          <div style="height:594px;padding:32px 36px;overflow:hidden;">
+            <!-- hero continue -->
+            <div style="background:linear-gradient(120deg,#e8622c,#f2953f);border-radius:22px;padding:28px 32px;display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;box-shadow:0 16px 30px -14px rgba(232,98,44,0.6);">
+              <div>
+                <div style="font-family:'Nunito Sans';font-weight:800;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#ffe4d2;margin-bottom:8px;">Keep going, Aizhan!</div>
+                <div style="font-family:'Baloo 2';font-weight:700;font-size:26px;color:#fff;">Fractions · Comparing fractions</div>
+                <div style="display:flex;align-items:center;gap:12px;margin-top:14px;"><div style="width:220px;height:10px;background:rgba(255,255,255,0.35);border-radius:99px;overflow:hidden;"><div style="width:60%;height:100%;background:#fff;"></div></div><span style="font-family:'Nunito Sans';font-weight:800;font-size:13px;color:#fff;">Test 3 of 5</span></div>
+              </div>
+              <div style="background:#fff;color:#e8622c;font-family:'Baloo 2';font-weight:700;font-size:17px;padding:14px 30px;border-radius:14px;">Resume →</div>
+            </div>
+            <div style="font-family:'Baloo 2';font-weight:600;font-size:19px;color:#2c2418;margin-bottom:16px;">Pick a topic</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
+              <div style="background:#fff;border-radius:20px;padding:20px;border:1px solid #f2e8d8;">
+                <div style="width:52px;height:52px;border-radius:16px;background:#fdeadd;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:26px;color:#e8622c;margin-bottom:14px;">½</div>
+                <div style="font-family:'Baloo 2';font-weight:600;font-size:17px;color:#2c2418;">Fractions</div>
+                <div style="font-family:'Nunito Sans';font-size:13px;color:#a89b86;margin-bottom:12px;">6 subtopics</div>
+                <div style="height:8px;background:#f4ecdf;border-radius:99px;overflow:hidden;"><div style="width:60%;height:100%;background:#e8622c;"></div></div>
+              </div>
+              <div style="background:#fff;border-radius:20px;padding:20px;border:1px solid #f2e8d8;">
+                <div style="width:52px;height:52px;border-radius:16px;background:#dff0f0;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:24px;color:#178f8f;margin-bottom:14px;">%</div>
+                <div style="font-family:'Baloo 2';font-weight:600;font-size:17px;color:#2c2418;">Decimals</div>
+                <div style="font-family:'Nunito Sans';font-size:13px;color:#a89b86;margin-bottom:12px;">5 subtopics</div>
+                <div style="height:8px;background:#f4ecdf;border-radius:99px;overflow:hidden;"><div style="width:30%;height:100%;background:#178f8f;"></div></div>
+              </div>
+              <div style="background:#fff;border-radius:20px;padding:20px;border:1px solid #f2e8d8;">
+                <div style="width:52px;height:52px;border-radius:16px;background:#fdf1d6;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:24px;color:#d99a10;margin-bottom:14px;">△</div>
+                <div style="font-family:'Baloo 2';font-weight:600;font-size:17px;color:#2c2418;">Geometry</div>
+                <div style="font-family:'Nunito Sans';font-size:13px;color:#a89b86;margin-bottom:12px;">7 subtopics</div>
+                <div style="height:8px;background:#f4ecdf;border-radius:99px;overflow:hidden;"><div style="width:10%;height:100%;background:#d99a10;"></div></div>
+              </div>
+              <div style="background:#fff;border-radius:20px;padding:20px;border:1px solid #f2e8d8;">
+                <div style="width:52px;height:52px;border-radius:16px;background:#eae6fb;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:24px;color:#6a56cf;margin-bottom:14px;">×</div>
+                <div style="font-family:'Baloo 2';font-weight:600;font-size:17px;color:#2c2418;">Multiplication</div>
+                <div style="font-family:'Nunito Sans';font-size:13px;color:#a89b86;margin-bottom:12px;">4 subtopics</div>
+                <div style="height:8px;background:#f4ecdf;border-radius:99px;overflow:hidden;"><div style="width:80%;height:100%;background:#6a56cf;"></div></div>
+              </div>
+            </div>
+            <!-- quiz cta -->
+            <div style="margin-top:22px;background:#178f8f;border-radius:20px;padding:22px 28px;display:flex;justify-content:space-between;align-items:center;">
+              <div><div style="font-family:'Baloo 2';font-weight:700;font-size:20px;color:#fff;">⏱ Daily Quiz Challenge</div><div style="font-family:'Nunito Sans';font-size:14px;color:#cdeaea;">10 mixed problems · beat the timer</div></div>
+              <div style="background:#fff;color:#178f8f;font-family:'Baloo 2';font-weight:700;font-size:16px;padding:12px 28px;border-radius:12px;">Start quiz</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B · LEARN -->
+        <div style="width:1080px; border-radius:16px; overflow:hidden; box-shadow:0 24px 60px -20px rgba(60,40,20,0.4); background:#fff9f0;">
+          <div style="height:38px; background:#f4e9d8; display:flex; align-items:center; gap:7px; padding:0 16px; border-bottom:1px solid #ecdcc4;">
+            <span style="width:11px;height:11px;border-radius:50%;background:#e06a5b;"></span>
+            <span style="width:11px;height:11px;border-radius:50%;background:#e8b84b;"></span>
+            <span style="width:11px;height:11px;border-radius:50%;background:#5fb87a;"></span>
+            <div style="margin-left:16px; background:#fff; border:1px solid #ecdcc4; border-radius:6px; font-family:'Nunito Sans'; font-size:12px; color:#b0a48f; padding:3px 14px;">mathnest.app / learn / fractions</div>
+          </div>
+          <div style="height:66px;background:#fff;border-bottom:1px solid #f0e5d4;display:flex;align-items:center;padding:0 32px;gap:28px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-right:14px;"><div style="width:36px;height:36px;border-radius:12px;background:#e8622c;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:800;color:#fff;font-size:20px;">∑</div><span style="font-family:'Baloo 2';font-weight:700;font-size:21px;color:#2c2418;">MathNest</span></div>
+            <span style="font-family:'Nunito Sans';font-weight:700;font-size:15px;color:#8a8072;">Home</span>
+            <span style="font-family:'Nunito Sans';font-weight:800;font-size:15px;color:#e8622c;">Learn</span>
+            <span style="font-family:'Nunito Sans';font-weight:700;font-size:15px;color:#8a8072;">Quiz</span>
+            <span style="font-family:'Nunito Sans';font-weight:700;font-size:15px;color:#8a8072;">Progress</span>
+            <div style="margin-left:auto;width:38px;height:38px;border-radius:50%;background:#178f8f;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;color:#fff;">А</div>
+          </div>
+          <div style="height:594px;padding:32px 40px;overflow:hidden;">
+            <div style="display:flex;align-items:center;gap:8px;font-family:'Nunito Sans';font-size:13px;color:#a89b86;margin-bottom:8px;">Learn <span>›</span><span style="color:#e8622c;font-weight:800;">Fractions</span></div>
+            <div style="display:flex;align-items:center;gap:18px;margin-bottom:26px;">
+              <div style="width:64px;height:64px;border-radius:20px;background:#fdeadd;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:34px;color:#e8622c;">½</div>
+              <div><div style="font-family:'Baloo 2';font-weight:700;font-size:30px;color:#2c2418;">Fractions</div><div style="font-family:'Nunito Sans';font-size:15px;color:#8a8072;">6 subtopics · 24 practice tests</div></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+              <div style="background:#fff;border-radius:18px;padding:20px;border:1px solid #f2e8d8;display:flex;align-items:center;gap:16px;">
+                <div style="width:44px;height:44px;border-radius:14px;background:#e8622c;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:20px;">✓</div>
+                <div style="flex:1;"><div style="font-family:'Baloo 2';font-weight:600;font-size:16px;color:#2c2418;">Understanding fractions</div><div style="font-family:'Nunito Sans';font-size:13px;color:#a89b86;">4 / 4 tests done</div></div>
+              </div>
+              <div style="background:#fff;border-radius:18px;padding:20px;border:2px solid #e8622c;display:flex;align-items:center;gap:16px;">
+                <div style="width:44px;height:44px;border-radius:14px;background:#fdeadd;color:#e8622c;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:20px;">½</div>
+                <div style="flex:1;"><div style="font-family:'Baloo 2';font-weight:600;font-size:16px;color:#2c2418;">Comparing fractions</div><div style="display:flex;align-items:center;gap:8px;margin-top:5px;"><div style="width:120px;height:7px;background:#f4ecdf;border-radius:99px;overflow:hidden;"><div style="width:60%;height:100%;background:#e8622c;"></div></div><span style="font-family:'Nunito Sans';font-size:12px;color:#a89b86;">3/5</span></div></div>
+              </div>
+              <div style="background:#fff;border-radius:18px;padding:20px;border:1px solid #f2e8d8;display:flex;align-items:center;gap:16px;">
+                <div style="width:44px;height:44px;border-radius:14px;background:#f4ecdf;color:#a89b86;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:20px;">+</div>
+                <div style="flex:1;"><div style="font-family:'Baloo 2';font-weight:600;font-size:16px;color:#2c2418;">Adding &amp; subtracting</div><div style="font-family:'Nunito Sans';font-size:13px;color:#a89b86;">5 tests · not started</div></div>
+              </div>
+              <div style="background:#fff;border-radius:18px;padding:20px;border:1px solid #f2e8d8;display:flex;align-items:center;gap:16px;opacity:0.65;">
+                <div style="width:44px;height:44px;border-radius:14px;background:#f4ecdf;color:#a89b86;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:20px;">×</div>
+                <div style="flex:1;"><div style="font-family:'Baloo 2';font-weight:600;font-size:16px;color:#2c2418;">Multiplying fractions</div><div style="font-family:'Nunito Sans';font-size:13px;color:#a89b86;">🔒 locked</div></div>
+              </div>
+              <div style="background:#fff;border-radius:18px;padding:20px;border:1px solid #f2e8d8;display:flex;align-items:center;gap:16px;opacity:0.65;">
+                <div style="width:44px;height:44px;border-radius:14px;background:#f4ecdf;color:#a89b86;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:20px;">÷</div>
+                <div style="flex:1;"><div style="font-family:'Baloo 2';font-weight:600;font-size:16px;color:#2c2418;">Dividing fractions</div><div style="font-family:'Nunito Sans';font-size:13px;color:#a89b86;">🔒 locked</div></div>
+              </div>
+              <div style="background:#fff;border-radius:18px;padding:20px;border:1px solid #f2e8d8;display:flex;align-items:center;gap:16px;opacity:0.65;">
+                <div style="width:44px;height:44px;border-radius:14px;background:#f4ecdf;color:#a89b86;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:20px;">=</div>
+                <div style="flex:1;"><div style="font-family:'Baloo 2';font-weight:600;font-size:16px;color:#2c2418;">Mixed numbers</div><div style="font-family:'Nunito Sans';font-size:13px;color:#a89b86;">🔒 locked</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B · PRACTICE -->
+        <div style="width:1080px; border-radius:16px; overflow:hidden; box-shadow:0 24px 60px -20px rgba(60,40,20,0.4); background:#fff9f0;">
+          <div style="height:38px; background:#f4e9d8; display:flex; align-items:center; gap:7px; padding:0 16px; border-bottom:1px solid #ecdcc4;">
+            <span style="width:11px;height:11px;border-radius:50%;background:#e06a5b;"></span>
+            <span style="width:11px;height:11px;border-radius:50%;background:#e8b84b;"></span>
+            <span style="width:11px;height:11px;border-radius:50%;background:#5fb87a;"></span>
+            <div style="margin-left:16px; background:#fff; border:1px solid #ecdcc4; border-radius:6px; font-family:'Nunito Sans'; font-size:12px; color:#b0a48f; padding:3px 14px;">mathnest.app / practice · comparing fractions · test 3</div>
+          </div>
+          <div style="height:660px;padding:28px 40px;display:flex;flex-direction:column;">
+            <div style="display:flex;align-items:center;gap:20px;margin-bottom:40px;">
+              <div style="width:36px;height:36px;border-radius:12px;background:#fff;border:1px solid #f0e5d4;display:flex;align-items:center;justify-content:center;color:#8a8072;font-size:16px;">✕</div>
+              <div style="flex:1;height:14px;background:#f4ecdf;border-radius:99px;overflow:hidden;"><div style="width:40%;height:100%;background:#e8622c;border-radius:99px;"></div></div>
+              <div style="font-family:'Baloo 2';font-weight:700;font-size:15px;color:#8a8072;">4 / 10</div>
+            </div>
+            <div style="max-width:740px;margin:0 auto;width:100%;">
+              <div style="font-family:'Nunito Sans';font-weight:800;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#178f8f;margin-bottom:14px;">Tap the correct answer</div>
+              <div style="font-family:'Baloo 2';font-weight:700;font-size:32px;color:#2c2418;line-height:1.25;margin-bottom:34px;">Which fraction is greater than <span style="background:#fdeadd;padding:2px 14px;border-radius:10px;color:#e8622c;">3⁄5</span> ?</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div style="background:#fff;border:2px solid #f0e5d4;border-radius:18px;padding:24px;display:flex;align-items:center;gap:16px;"><span style="width:36px;height:36px;border-radius:10px;background:#f4ecdf;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;color:#8a8072;">A</span><span style="font-family:'Baloo 2';font-weight:700;font-size:26px;color:#2c2418;">2⁄5</span></div>
+                <div style="background:#fff;border:3px solid #e8622c;border-radius:18px;padding:24px;display:flex;align-items:center;gap:16px;box-shadow:0 8px 20px -8px rgba(232,98,44,0.5);"><span style="width:36px;height:36px;border-radius:10px;background:#e8622c;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;color:#fff;">B</span><span style="font-family:'Baloo 2';font-weight:700;font-size:26px;color:#2c2418;">4⁄5</span></div>
+                <div style="background:#fff;border:2px solid #f0e5d4;border-radius:18px;padding:24px;display:flex;align-items:center;gap:16px;"><span style="width:36px;height:36px;border-radius:10px;background:#f4ecdf;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;color:#8a8072;">C</span><span style="font-family:'Baloo 2';font-weight:700;font-size:26px;color:#2c2418;">1⁄2</span></div>
+                <div style="background:#fff;border:2px solid #f0e5d4;border-radius:18px;padding:24px;display:flex;align-items:center;gap:16px;"><span style="width:36px;height:36px;border-radius:10px;background:#f4ecdf;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;color:#8a8072;">D</span><span style="font-family:'Baloo 2';font-weight:700;font-size:26px;color:#2c2418;">3⁄10</span></div>
+              </div>
+            </div>
+            <div style="margin-top:auto;display:flex;justify-content:space-between;align-items:center;">
+              <div style="font-family:'Baloo 2';font-weight:600;font-size:16px;color:#a89b86;">Skip</div>
+              <div style="background:#e8622c;color:#fff;font-family:'Baloo 2';font-weight:700;font-size:18px;padding:15px 50px;border-radius:14px;box-shadow:0 10px 22px -8px rgba(232,98,44,0.55);">Check</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+</x-dc>
+</body>
+</html>

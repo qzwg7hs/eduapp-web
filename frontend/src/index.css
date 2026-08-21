@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700;6..12,900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-bg text-gray-900 font-sans antialiased;
+    font-weight: 400;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display font-semibold;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-xl font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply btn bg-primary text-white hover:brightness-105 active:scale-95 shadow-sm;
+    box-shadow: 0 6px 16px -6px rgba(232, 98, 44, 0.5);
+  }
+  .btn-secondary {
+    @apply btn bg-primary-light text-primary hover:brightness-95 active:scale-95;
+  }
+  .btn-ghost {
+    @apply btn bg-transparent border border-border text-muted hover:bg-gray-50 active:scale-95;
+  }
+  .btn-danger {
+    @apply btn bg-danger text-white hover:brightness-105 active:scale-95;
+  }
+  .card {
+    @apply bg-surface rounded-2xl border border-border p-4;
+  }
+  .input {
+    @apply w-full bg-white border border-border rounded-xl px-3 py-2.5 text-sm text-gray-900 placeholder-muted focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-colors;
+  }
+  .label {
+    @apply block text-sm font-semibold text-gray-700 mb-1.5;
+  }
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+}
