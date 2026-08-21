@@ -7,7 +7,7 @@ import { TopicInTree, ContinueProgress, ExamStatusOut, PodStatusOut } from '@/ty
 import { secondsUntilNextUtcHour, formatCountdown } from '@/lib/dailyTimer'
 
 const TESTBANK_RESET_UTC_HOUR = 19 // 00:00 UTC+5
-const POD_RESET_UTC_HOUR = 7       // 12:00 UTC+5
+const POD_RESET_UTC_HOUR = 19       // 00:00 UTC+5
 
 // Accent palette cycles per topic index
 const ACCENTS = [

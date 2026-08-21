@@ -10,8 +10,8 @@ export function parseServerUtc(iso: string): number {
 }
 
 /** Seconds remaining until the next occurrence of `utcHour:00 UTC` (today if
- * still ahead, otherwise tomorrow). Test Bank resets at UTC hour 19 (= 00:00
- * UTC+5); Problem of the Day resets at UTC hour 7 (= 12:00 UTC+5). */
+ * still ahead, otherwise tomorrow). Both Test Bank and Problem of the Day
+ * reset at UTC hour 19 (= 00:00 UTC+5). */
 export function secondsUntilNextUtcHour(utcHour: number): number {
   const now = new Date()
   const next = new Date(now)

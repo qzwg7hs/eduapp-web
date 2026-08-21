@@ -445,11 +445,11 @@ export default function AdminTestBank() {
             {formError && <div className="bg-danger-light border border-red-200 rounded-lg px-3 py-2 text-sm text-danger">{formError}</div>}
 
             <div className="flex gap-2">
-              <button className="btn-primary flex-1" onClick={() => saveForm(false)} disabled={saving}>
+              <button className="btn-primary flex-1" onClick={() => saveForm(true)} disabled={saving}>
                 {saving ? t('admin.saving') : t('admin.save')}
               </button>
-              <button className="btn-ghost flex-1" onClick={() => saveForm(true)} disabled={saving}>
-                {t('admin.modal.save_draft')}
+              <button className="btn-secondary flex-1" onClick={() => saveForm(false)} disabled={saving}>
+                {t('admin.modal.save_publish')}
               </button>
             </div>
             <button className="btn-ghost w-full" onClick={closeForm}>{t('admin.cancel')}</button>
