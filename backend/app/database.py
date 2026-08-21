@@ -26,7 +26,11 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-engine = create_engine(settings.database_url)
+# pool_pre_ping + pool_recycle guard against hosted Postgres providers (Railway,
+# Render, etc.) silently closing idle connections — without these, SQLAlchemy can
+# hand out a dead connection from the pool and fail with "SSL SYSCALL error: EOF
+# detected" on the first query after a period of inactivity.
+engine = create_engine(settings.database_url, pool_pre_ping=True, pool_recycle=300)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
