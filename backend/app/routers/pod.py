@@ -21,12 +21,14 @@ _IMG_EXT = {
 
 
 def _today_utc5() -> date_type:
-    """Problem of the Day rolls over at 12:00 UTC+5 (Kazakhstan time)."""
-    return (datetime.utcnow() - timedelta(hours=7)).date()
+    """Problem of the Day rolls over at 00:00 UTC+5 (Kazakhstan time) — same
+    calendar-day convention as the Test Bank."""
+    return (datetime.utcnow() + timedelta(hours=5)).date()
 
 
 def _active_window(day: date_type) -> tuple[datetime, datetime]:
-    active_from = datetime(day.year, day.month, day.day, 7, 0, 0)  # 12:00 UTC+5 = 07:00 UTC
+    # 00:00 UTC+5 == 19:00 UTC the previous calendar day
+    active_from = datetime(day.year, day.month, day.day) - timedelta(hours=5)
     return active_from, active_from + timedelta(days=1)
 
 

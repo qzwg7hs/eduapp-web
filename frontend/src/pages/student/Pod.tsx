@@ -8,7 +8,7 @@ import LatexText from '@/components/LatexText'
 import { AlertTriangle } from 'lucide-react'
 import { secondsUntilNextUtcHour, formatCountdown } from '@/lib/dailyTimer'
 
-const POD_RESET_UTC_HOUR = 7 // 12:00 UTC+5 — must match routers/pod.py's active_from calculation
+const POD_RESET_UTC_HOUR = 19 // 00:00 UTC+5 — must match routers/pod.py's active_from calculation
 
 type Phase = 'loading' | 'none' | 'rules' | 'solving' | 'result' | 'locked'
 
