@@ -69,8 +69,6 @@ export interface Problem {
   open_answer?: OpenAnswer | null;
   image_url?: string | null;
   hint1?: string;
-  hint2?: string;
-  hint3?: string;
   is_hard: boolean;
   is_draft: boolean;
   is_published: boolean;

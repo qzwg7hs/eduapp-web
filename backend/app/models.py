@@ -93,8 +93,6 @@ class Problem(Base):
     open_answer = Column(JSON, nullable=True)           # {"type":"single","value":42} | {"type":"set","values":[1,2]}
     image_url = Column(String, nullable=True)
     hint1 = Column(String, nullable=True, default="Think carefully.")
-    hint2 = Column(String, nullable=True, default="Review the explanation.")
-    hint3 = Column(String, nullable=True, default="The answer relates to the key concept.")
     is_hard = Column(Boolean, default=False)
     is_draft = Column(Boolean, default=True)
     is_published = Column(Boolean, default=False)
