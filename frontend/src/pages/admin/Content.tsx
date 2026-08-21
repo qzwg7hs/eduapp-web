@@ -58,7 +58,7 @@ const defaultForm = (): FormState => ({
   hint: '',
   isHard: false,
   blocks: [],
-  level: '',
+  level: 'A',
 })
 
 // High enough that topics/subtopics/lessons/tests all show on a single page in
@@ -225,7 +225,7 @@ export default function AdminContent() {
         correctOpts, openAnswerType: oaType, openAnswerValue: oaVal, openAnswerValues: oaVals,
         hint: p.hint1 ?? '',
         isHard: p.is_hard ?? false, blocks: [],
-        level: p.level ?? '',
+        level: p.level ?? 'A',
       })
     } else {
       setForm({
@@ -238,7 +238,7 @@ export default function AdminContent() {
         hint: item.hint1 ?? '',
         isHard: item.is_hard ?? false,
         blocks: Array.isArray(item.content_blocks) ? item.content_blocks : [],
-        level: '',
+        level: 'A',
       })
     }
   }
@@ -864,11 +864,11 @@ export default function AdminContent() {
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 flex-wrap mb-1">
                                 <span className={`badge text-xs ${prob.problem_type === 'open' ? 'bg-primary-light text-primary' : 'bg-gray-100 text-gray-600'}`}>
-                                  {prob.problem_type === 'open' ? 'Open' : 'MCQ'}
+                                  {prob.problem_type === 'open' ? t('admin.testbank.open') : t('admin.testbank.mcq')}
                                 </span>
                                 <StatusBadge isDraft={prob.is_draft} isPublished={prob.is_published} />
-                                {prob.is_hard && <span className="badge bg-warning-light text-warning">⚡ Hard</span>}
-                                {prob.level && <span className="badge bg-gray-100 text-gray-600">Level {prob.level}</span>}
+                                {prob.is_hard && <span className="badge bg-warning-light text-warning">⚡ {t('admin.problem.hard_badge')}</span>}
+                                {prob.level && <span className="badge bg-gray-100 text-gray-600">{t('admin.problem.level_badge', { level: prob.level })}</span>}
                               </div>
                               <p className="text-sm text-gray-700 leading-snug">
                                 <LatexText text={prob.question.slice(0, 120) + (prob.question.length > 120 ? '…' : '')} />
@@ -1020,28 +1020,28 @@ export default function AdminContent() {
             {/* Problem form */}
             {(mode === 'add_problem' || mode === 'edit_problem') && <>
               <div className="flex items-center justify-between">
-                <label className="label mb-0">Hard problem (⚡ max 10 pts)</label>
+                <label className="label mb-0">{t('admin.problem.hard_label')}</label>
                 <input type="checkbox" checked={form.isHard} onChange={e => setForm(f => ({ ...f, isHard: e.target.checked }))} className="w-5 h-5 accent-primary" />
               </div>
               <div>
-                <label className="label">Level (for A/B/C test tabs)</label>
+                <label className="label">{t('admin.problem.level_label')}</label>
                 <div className="flex gap-2">
-                  {['', 'A', 'B', 'C'].map(lv => (
+                  {['A', 'B', 'C'].map(lv => (
                     <button
-                      key={lv || 'none'}
+                      key={lv}
                       type="button"
                       onClick={() => setForm(f => ({ ...f, level: lv }))}
                       className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
                         form.level === lv ? 'border-primary bg-primary-light text-primary' : 'border-border text-muted hover:bg-gray-50'
                       }`}
                     >
-                      {lv || 'None'}
+                      {lv}
                     </button>
                   ))}
                 </div>
               </div>
               <div>
-                <label className="label">Problem type</label>
+                <label className="label">{t('admin.problem.type_label')}</label>
                 <div className="flex gap-2">
                   {(['mcq', 'open'] as ProblemType[]).map(pt => (
                     <button
@@ -1051,35 +1051,35 @@ export default function AdminContent() {
                         form.problemType === pt ? 'border-primary bg-primary-light text-primary' : 'border-border text-muted hover:bg-gray-50'
                       }`}
                     >
-                      {pt === 'mcq' ? '☑ Multiple Choice' : '✏️ Open Question'}
+                      {pt === 'mcq' ? `☑ ${t('admin.testbank.mcq')}` : `✏️ ${t('admin.testbank.open')}`}
                     </button>
                   ))}
                 </div>
               </div>
               <div>
-                <label className="label">Question</label>
-                <p className="text-xs text-muted mb-1">Use $formula$ for inline math, $$formula$$ for display math</p>
+                <label className="label">{t('admin.problem.question_label')}</label>
+                <p className="text-xs text-muted mb-1">{t('admin.problem.formula_hint')}</p>
                 <textarea
                   className="input font-mono" rows={3}
                   value={form.question}
                   onChange={e => setForm(f => ({ ...f, question: e.target.value }))}
-                  placeholder="What is the value of $x$ when $2x + 3 = 7$?"
+                  placeholder={t('admin.problem.question_placeholder')}
                 />
                 {form.question && (
                   <div className="mt-2 p-3 bg-gray-50 rounded-lg text-sm text-gray-800">
-                    <p className="text-xs text-muted mb-1">Preview:</p>
+                    <p className="text-xs text-muted mb-1">{t('admin.problem.preview_label')}</p>
                     <LatexText text={form.question} />
                   </div>
                 )}
               </div>
               <div>
-                <label className="label">{t('admin.upload_image')}</label>
+                <label className="label">{t('admin.problem.image_label')}</label>
                 <AdminImageUpload value={form.imageUrl} onChange={url => setForm(f => ({ ...f, imageUrl: url }))} />
               </div>
               {form.problemType === 'mcq' && (
                 <div>
-                  <label className="label">Answer options</label>
-                  <p className="text-xs text-muted mb-2">Click the letter to toggle correct. Multiple correct = multi-select question.</p>
+                  <label className="label">{t('admin.problem.options_label')}</label>
+                  <p className="text-xs text-muted mb-2">{t('admin.problem.options_hint')}</p>
                   {form.opts.map((opt, i) => (
                     <div key={i} className="flex items-center gap-2 mb-2">
                       <button
@@ -1095,22 +1095,22 @@ export default function AdminContent() {
                         className="input"
                         value={opt}
                         onChange={e => { const o = [...form.opts]; o[i] = e.target.value; setForm(f => ({ ...f, opts: o })) }}
-                        placeholder={`Option ${['A','B','C','D','E','F'][i]}`}
+                        placeholder={t('admin.problem.option_placeholder', { letter: ['A','B','C','D','E','F'][i] })}
                       />
                     </div>
                   ))}
                   <button type="button" className="text-xs text-primary font-medium" onClick={() => setForm(f => ({ ...f, opts: [...f.opts, ''] }))} disabled={form.opts.length >= 6}>
-                    + Add option
+                    {t('admin.problem.add_option')}
                   </button>
                   <p className="text-xs text-muted mt-1">
-                    Correct: {form.correctOpts.map(i => ['A','B','C','D','E','F'][i]).join(', ') || 'none selected'}
+                    {t('admin.problem.correct_label', { opts: form.correctOpts.map(i => ['A','B','C','D','E','F'][i]).join(', ') || t('admin.problem.none_selected') })}
                   </p>
                 </div>
               )}
               {form.problemType === 'open' && (
                 <div className="space-y-3">
                   <div>
-                    <label className="label">Answer type</label>
+                    <label className="label">{t('admin.problem.answer_type_label')}</label>
                     <div className="flex gap-2">
                       {(['single', 'set'] as const).map(tp => (
                         <button
@@ -1120,31 +1120,31 @@ export default function AdminContent() {
                             form.openAnswerType === tp ? 'border-primary bg-primary-light text-primary' : 'border-border text-muted'
                           }`}
                         >
-                          {tp === 'single' ? 'Single number' : 'Set of numbers'}
+                          {tp === 'single' ? t('admin.problem.single_number') : t('admin.problem.set_numbers')}
                         </button>
                       ))}
                     </div>
                   </div>
                   {form.openAnswerType === 'single' ? (
                     <div>
-                      <label className="label">Correct answer</label>
-                      <input className="input" type="number" step="any" value={form.openAnswerValue} onChange={e => setForm(f => ({ ...f, openAnswerValue: e.target.value }))} placeholder="e.g. 42" />
+                      <label className="label">{t('admin.problem.correct_answer_label')}</label>
+                      <input className="input" type="number" step="any" value={form.openAnswerValue} onChange={e => setForm(f => ({ ...f, openAnswerValue: e.target.value }))} placeholder={t('admin.problem.answer_placeholder')} />
                     </div>
                   ) : (
                     <div>
-                      <label className="label">Correct answers (comma-separated, order doesn't matter)</label>
-                      <input className="input" value={form.openAnswerValues} onChange={e => setForm(f => ({ ...f, openAnswerValues: e.target.value }))} placeholder="e.g. 1, 2, 3" />
+                      <label className="label">{t('admin.problem.correct_answers_set_label')}</label>
+                      <input className="input" value={form.openAnswerValues} onChange={e => setForm(f => ({ ...f, openAnswerValues: e.target.value }))} placeholder={t('admin.problem.answers_placeholder')} />
                     </div>
                   )}
                 </div>
               )}
               {!form.isHard && (
                 <div>
-                  <label className="label border-t border-border pt-3 mt-1">Hint (optional) — using it gives no point for that attempt</label>
+                  <label className="label border-t border-border pt-3 mt-1">{t('admin.problem.hint_label')}</label>
                   <input
                     className="input" value={form.hint}
                     onChange={e => setForm(f => ({ ...f, hint: e.target.value }))}
-                    placeholder="A short nudge, without giving away the answer…"
+                    placeholder={t('admin.problem.hint_placeholder')}
                   />
                 </div>
               )}

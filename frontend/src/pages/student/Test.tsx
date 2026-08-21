@@ -117,8 +117,11 @@ export default function StudentTest() {
       for (let i = 1; i < levels.length; i++) {
         const prev = levels[i - 1]
         const prevProblems = groups[prev] ?? []
-        // All prev problems have a best attempt (correct or wrong) → unlock next
-        if (prevProblems.every(p => !!bestMap[p.id])) {
+        // Unlock the next level only once at least 70% (7/10) of the previous
+        // level's problems have been answered correctly — however many
+        // attempts that took.
+        const correctCount = prevProblems.filter(p => bestMap[p.id]?.is_correct).length
+        if (prevProblems.length > 0 && correctCount >= Math.ceil(prevProblems.length * 0.7)) {
           unlocked.add(levels[i])
         } else {
           break
@@ -167,12 +170,13 @@ export default function StudentTest() {
       const next = levelOrder[i]
       if (newUnlocked.has(next)) continue
       const prevProblems = levelGroups[prev] ?? []
-      // Unlock next level when all prev problems have been submitted (correct or wrong, not idle/skipped)
-      const allSubmitted = prevProblems.every(p => {
-        const q = updated[p.id]
-        return q && q.status !== 'idle'  // correct, wrong, or skipped all count
-      })
-      if (allSubmitted) newUnlocked.add(next)
+      // Unlock the next level only once at least 70% (7/10) of the previous
+      // level's problems have been answered correctly — however many
+      // attempts that took, not merely "attempted".
+      const correctCount = prevProblems.filter(p => updated[p.id]?.status === 'correct').length
+      if (prevProblems.length > 0 && correctCount >= Math.ceil(prevProblems.length * 0.7)) {
+        newUnlocked.add(next)
+      }
     }
     if (newUnlocked.size !== unlockedLevels.size) setUnlockedLevels(newUnlocked)
   }
