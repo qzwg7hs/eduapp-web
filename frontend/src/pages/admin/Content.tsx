@@ -60,7 +60,10 @@ const defaultForm = (): FormState => ({
   level: '',
 })
 
-const PAGE_SIZE = 10
+// High enough that topics/subtopics/lessons/tests all show on a single page in
+// practice (current largest list is ~30 problems in one lesson) — pagination
+// controls still kick in automatically if a list ever grows past this.
+const PAGE_SIZE = 200
 
 // ─── Shared mini-components ──────────────────────────────────────────────────
 
