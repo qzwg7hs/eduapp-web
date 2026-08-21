@@ -13,7 +13,7 @@ router = APIRouter(prefix="/problems", tags=["problems"])
 
 MAX_PROBLEMS_PER_LESSON = 10
 REGULAR_SCALE = [1, 0, 0, 0, 0]
-HARD_SCALE = [1, 0, 0, 0, 0]
+HARD_SCALE = [3, 0, 0, 0, 0]
 
 
 def calc_points(is_hard: bool, hints_used: int) -> int:

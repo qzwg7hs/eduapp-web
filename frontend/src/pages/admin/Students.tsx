@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import api from '@/api/client'
 import { Profile } from '@/types'
 import { useI18n } from '@/contexts/I18nContext'
-import { CheckCircle2, XCircle, ChevronDown, ChevronUp, Search, X } from 'lucide-react'
+import { CheckCircle2, XCircle, ChevronDown, ChevronUp, Search, X, Eye, EyeOff } from 'lucide-react'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -251,7 +251,7 @@ export default function AdminStudents() {
                   />
                   <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted"
                     onClick={() => setM(p => ({ ...p, showPassword: !p.showPassword }))}>
-                    {m.showPassword ? '🙈' : '👁️'}
+                    {m.showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
@@ -265,7 +265,7 @@ export default function AdminStudents() {
                     <input className="input pr-10 bg-gray-50" type={m.showCurrent ? 'text' : 'password'} value={m.currentPassword} readOnly />
                     <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted"
                       onClick={() => setM(p => ({ ...p, showCurrent: !p.showCurrent }))}>
-                      {m.showCurrent ? '🙈' : '👁️'}
+                      {m.showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
