@@ -343,7 +343,13 @@ def submit_attempt(body: AttemptCreate, db: Session = Depends(get_db), current_u
     db.add(attempt)
 
     if pts > 0:
-        current_user.points += pts
+        # Atomic SQL-level increment (UPDATE ... SET points = points + :pts) —
+        # a plain Python `current_user.points += pts` is a read-modify-write
+        # that loses updates when two requests race (e.g. this endpoint firing
+        # concurrently with a Test Bank/POD submission).
+        db.query(Profile).filter(Profile.id == current_user.id).update(
+            {"points": Profile.points + pts}, synchronize_session=False
+        )
 
     db.commit()
     db.refresh(attempt)
