@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import api from '@/api/client'
 import { Profile } from '@/types'
 
@@ -16,11 +16,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // Guards against out-of-order responses: browsers throttle network requests
+  // in backgrounded tabs (exactly what happens during the anti-cheat tab-exit
+  // flows), so an earlier refreshProfile() call can resolve *after* a later
+  // one and clobber fresher data (e.g. points) with a stale snapshot. Only the
+  // most-recently-issued request is ever allowed to actually update state.
+  const requestSeq = useRef(0)
+
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (!token) { setLoading(false); return }
+    const seq = ++requestSeq.current
     api.get<Profile>('/auth/me')
-      .then(r => setProfile(r.data))
+      .then(r => { if (seq === requestSeq.current) setProfile(r.data) })
       .catch(() => localStorage.removeItem('token'))
       .finally(() => setLoading(false))
   }, [])
@@ -32,8 +40,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password,
       })
       localStorage.setItem('token', data.access_token)
+      const seq = ++requestSeq.current
       const me = await api.get<Profile>('/auth/me')
-      setProfile(me.data)
+      if (seq === requestSeq.current) setProfile(me.data)
       return { error: null }
     } catch (err: any) {
       const status = err.response?.status
@@ -51,9 +60,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function refreshProfile() {
+    const seq = ++requestSeq.current
     try {
       const me = await api.get<Profile>('/auth/me')
-      setProfile(me.data)
+      if (seq === requestSeq.current) setProfile(me.data)
     } catch {}
   }
 
