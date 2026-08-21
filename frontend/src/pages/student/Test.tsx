@@ -158,12 +158,6 @@ export default function StudentTest() {
   const problem = curLevelProblems[curIdx] ?? null
   const qs      = problem ? (qStates[problem.id] ?? fresh()) : null
 
-  const totalEarned = Object.values(qStates).reduce((s, q) => s + q.earned, 0)
-  const totalMax    = Object.values(levelGroups)
-    .flat()
-    .filter(p => unlockedLevels.has(p.level ?? ''))
-    .length
-
   // ─── Check level unlock after state change ────────────────────────────────
 
   function checkLevelUnlock(updated: Record<string, QState>) {
@@ -382,12 +376,6 @@ export default function StudentTest() {
           <ChevronLeft className="w-4 h-4" />
           {t('topics.back_to_topics')}
         </button>
-        <div
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-sm font-display font-semibold"
-          style={{ background: '#fdf1d6', border: '1px solid #f5d980', color: '#9a6f0a' }}
-        >
-          ⭐ {totalEarned} / {totalMax}
-        </div>
       </div>
 
       {lessonTitle && (
@@ -654,14 +642,9 @@ export default function StudentTest() {
       {(() => {
         const answered = curLevelProblems.filter(p => (qStates[p.id]?.status ?? 'idle') !== 'idle').length
         if (answered < 2) return null
-        const levelEarned = curLevelProblems.reduce((s, p) => s + (qStates[p.id]?.earned ?? 0), 0)
-        const levelMax    = curLevelProblems.length
         return (
           <div className="mt-4 pt-4 border-t border-border flex justify-between text-xs text-muted">
             <span>{answered}/{curLevelProblems.length} {t('topics.answered')}</span>
-            <span className="font-semibold" style={{ color: '#d99a10' }}>
-              ⭐ {levelEarned}/{levelMax} {t('topics.pts')}
-            </span>
           </div>
         )
       })()}
