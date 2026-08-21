@@ -197,8 +197,6 @@ async def bulk_upload(
             order_index=j,
             source_file_url=source_url,
             hint1=hint_text,
-            hint2=None,
-            hint3=None,
         )
         db.add(prob)
         total_imported += 1
@@ -247,8 +245,6 @@ def create_problem(body: ProblemCreate, db: Session = Depends(get_db), _=Depends
         open_answer=body.open_answer,
         image_url=body.image_url,
         hint1=body.hint1 or "Think carefully.",
-        hint2=body.hint2 or "Review the explanation.",
-        hint3=body.hint3 or "The answer relates to the key concept.",
         is_hard=body.is_hard,
         is_draft=body.is_draft,
         is_published=False,

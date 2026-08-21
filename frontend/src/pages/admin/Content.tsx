@@ -40,7 +40,7 @@ interface FormState {
   openAnswerType: 'single' | 'set'
   openAnswerValue: string
   openAnswerValues: string
-  hints: string[]
+  hint: string
   isHard: boolean
   blocks: ContentBlock[]
   level: string
@@ -55,7 +55,7 @@ const defaultForm = (): FormState => ({
   openAnswerType: 'single',
   openAnswerValue: '',
   openAnswerValues: '',
-  hints: ['', '', ''],
+  hint: '',
   isHard: false,
   blocks: [],
   level: '',
@@ -223,7 +223,7 @@ export default function AdminContent() {
         imageUrl: p.image_url ?? '', problemType: pType,
         opts: Array.isArray(p.options) && p.options.length ? [...p.options] : ['', '', '', ''],
         correctOpts, openAnswerType: oaType, openAnswerValue: oaVal, openAnswerValues: oaVals,
-        hints: [p.hint1 ?? '', p.hint2 ?? '', p.hint3 ?? ''],
+        hint: p.hint1 ?? '',
         isHard: p.is_hard ?? false, blocks: [],
         level: p.level ?? '',
       })
@@ -235,7 +235,7 @@ export default function AdminContent() {
         opts: Array.isArray(item.options) ? [...item.options] : ['', '', '', ''],
         correctOpts: [item.correct_option ?? 0],
         openAnswerType: 'single', openAnswerValue: '', openAnswerValues: '',
-        hints: [item.hint1 ?? '', item.hint2 ?? '', item.hint3 ?? ''],
+        hint: item.hint1 ?? '',
         isHard: item.is_hard ?? false,
         blocks: Array.isArray(item.content_blocks) ? item.content_blocks : [],
         level: '',
@@ -345,9 +345,7 @@ export default function AdminContent() {
       options: form.problemType === 'mcq' ? form.opts.filter(o => o.trim()) : [],
       correct_option: form.correctOpts[0] ?? 0, correct_options: form.correctOpts,
       open_answer: openAnswer, image_url: form.imageUrl.trim() || null,
-      hint1: form.hints[0] || 'Think carefully.',
-      hint2: form.hints[1] || 'Review the explanation.',
-      hint3: form.hints[2] || 'The answer relates to the key concept.',
+      hint1: form.hint || 'Think carefully.',
       is_hard: form.isHard, is_draft: false,
       level: form.level || null,
     }
@@ -1142,17 +1140,12 @@ export default function AdminContent() {
               )}
               {!form.isHard && (
                 <div>
-                  <p className="label border-t border-border pt-3 mt-1">Hints (optional)</p>
-                  {form.hints.map((h, i) => (
-                    <div key={i} className="mb-2">
-                      <label className="text-xs text-muted mb-1 block">Hint {i+1} — reduces max to {[3, 2, 1][i]} pts</label>
-                      <input
-                        className="input" value={h}
-                        onChange={e => { const hs = [...form.hints]; hs[i] = e.target.value; setForm(f => ({ ...f, hints: hs })) }}
-                        placeholder={['Gentle nudge…', 'More specific hint…', 'Almost giving it away…'][i]}
-                      />
-                    </div>
-                  ))}
+                  <label className="label border-t border-border pt-3 mt-1">Hint (optional) — using it gives no point for that attempt</label>
+                  <input
+                    className="input" value={form.hint}
+                    onChange={e => setForm(f => ({ ...f, hint: e.target.value }))}
+                    placeholder="A short nudge, without giving away the answer…"
+                  />
                 </div>
               )}
               <div className="flex gap-3">

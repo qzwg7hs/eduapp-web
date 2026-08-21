@@ -131,8 +131,6 @@ class ProblemCreate(BaseModel):
     open_answer: Optional[Any] = None   # {"type":"single","value":42} | {"type":"set","values":[1,2]}
     image_url: Optional[str] = None
     hint1: Optional[str] = "Think carefully."
-    hint2: Optional[str] = "Review the explanation."
-    hint3: Optional[str] = "The answer relates to the key concept."
     is_hard: bool = False
     is_draft: bool = True
     level: Optional[str] = None
@@ -147,8 +145,6 @@ class ProblemUpdate(BaseModel):
     open_answer: Optional[Any] = None
     image_url: Optional[str] = None
     hint1: Optional[str] = None
-    hint2: Optional[str] = None
-    hint3: Optional[str] = None
     is_hard: Optional[bool] = None
     is_draft: Optional[bool] = None
     is_published: Optional[bool] = None
@@ -166,8 +162,6 @@ class ProblemOut(BaseModel):
     open_answer: Optional[Any]
     image_url: Optional[str]
     hint1: Optional[str]
-    hint2: Optional[str]
-    hint3: Optional[str]
     is_hard: bool
     is_draft: bool
     is_published: bool

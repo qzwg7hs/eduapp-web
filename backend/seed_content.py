@@ -75,8 +75,6 @@ def build_problem(p: dict, lesson_id, order_index: int, language: str) -> Proble
         open_answer=open_answer,
         image_url=None,
         hint1=p["hint"],
-        hint2=None,
-        hint3=None,
         is_hard=False,
         is_draft=False,
         is_published=True,

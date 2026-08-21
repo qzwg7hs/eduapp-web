@@ -50,6 +50,12 @@ def _run_migrations():
             conn.execute(text('ALTER TABLE problems ADD COLUMN answer_text TEXT'))
         if 'source_file_url' not in prob_cols:
             conn.execute(text('ALTER TABLE problems ADD COLUMN source_file_url VARCHAR'))
+        # Dropped down to a single hint per problem (was 3 tiers, but scoring
+        # never actually distinguished between them — any hint used = 0 points).
+        if 'hint2' in prob_cols:
+            conn.execute(text('ALTER TABLE problems DROP COLUMN hint2'))
+        if 'hint3' in prob_cols:
+            conn.execute(text('ALTER TABLE problems DROP COLUMN hint3'))
 
     # Content-language column (bilingual kz/ru topics/subtopics/lessons/problems)
     for table in ('topics', 'subtopics', 'subsubtopics', 'problems'):
