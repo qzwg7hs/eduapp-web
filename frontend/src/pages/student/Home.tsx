@@ -42,13 +42,15 @@ export default function StudentHome() {
   useEffect(() => { load() }, [locale])
 
   // The specific subtopic/test the student most recently worked on and hasn't
-  // finished — a precise "pick up right where you left off" reference point,
-  // independent of the language toggle (it's about the student's own history).
+  // finished — a precise "pick up right where you left off" reference point.
+  // Which lesson this points to is independent of the language toggle (it's
+  // about the student's own history), but the title/lesson_id returned must
+  // match the current locale, so this still refetches on locale change.
   useEffect(() => {
-    api.get<ContinueProgress | null>('/progress/continue')
+    api.get<ContinueProgress | null>('/progress/continue', { params: { language: locale } })
       .then(r => setContinueItem(r.data))
       .catch(() => setContinueItem(null))
-  }, [])
+  }, [locale])
 
   // Whether today's exam/POD are already used up — drives CTA vs countdown below
   useEffect(() => {
@@ -75,10 +77,20 @@ export default function StudentHome() {
   }, [])
 
   // Every topic the student has started but not finished — shown as "continue"
-  // cards. There can be any number of these (0, 1, or several); each always
-  // opens the same topic page ("Тақырыптар" would show for that topic), never
-  // a specific lesson directly, so the experience is identical either way.
-  const inProgressTopics = topics.filter(t => t.completed_lessons > 0 && t.completed_lessons < t.total_lessons)
+  // cards. "Started" means any real activity anywhere inside it (even a
+  // single problem answered in an otherwise-untouched lesson), not just a
+  // fully-finished subtopic — a topic with 5/30 answered in its first test
+  // should still show up here, not sit indistinguishable from one that's
+  // never been opened at all.
+  function topicProgress(t: TopicInTree) {
+    let attempted = 0, total = 0
+    t.subtopics.forEach(s => s.lessons.forEach(l => { attempted += l.attempted_count; total += l.problem_count }))
+    return { attempted, total, started: attempted > 0 }
+  }
+  const inProgressTopics = topics.filter(t => {
+    const { started } = topicProgress(t)
+    return started && t.completed_lessons < t.total_lessons
+  })
 
   if (loading) {
     return (
@@ -144,7 +156,8 @@ export default function StudentHome() {
           <p className="text-xs font-bold text-muted uppercase tracking-widest mb-3">{t('home.continue')}</p>
           <div className="flex gap-3 overflow-x-auto pb-1 mb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
             {inProgressTopics.map(topic => {
-              const pct = topic.total_lessons > 0 ? (topic.completed_lessons / topic.total_lessons) * 100 : 0
+              const { attempted, total } = topicProgress(topic)
+              const pct = total > 0 ? (attempted / total) * 100 : 0
               return (
                 <button
                   key={topic.id}
@@ -163,7 +176,7 @@ export default function StudentHome() {
                       <div className="h-full bg-white rounded-full" style={{ width: `${pct}%` }} />
                     </div>
                     <span className="text-xs font-bold text-white/90 flex-shrink-0">
-                      {topic.completed_lessons}/{topic.total_lessons}
+                      {attempted}/{total}
                     </span>
                   </div>
                 </button>

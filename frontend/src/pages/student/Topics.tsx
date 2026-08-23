@@ -257,7 +257,19 @@ function TopicProgressCard({
     return ls.length > 0 && ls.every(l => l.is_completed)
   }).length
   const isComplete = total > 0 && done === total
-  const pct        = total > 0 ? done / total : 0
+  // Any real activity anywhere in the topic — even a single problem answered
+  // in an otherwise-untouched lesson — so a topic isn't shown as flatly "not
+  // started" just because no subtopic has been fully finished yet.
+  const anyAttempted = subs.some(sub => sub.lessons.some(l => l.attempted_count > 0))
+  const totalProblems    = subs.reduce((s, sub) => s + sub.lessons.reduce((s2, l) => s2 + l.problem_count, 0), 0)
+  const attemptedProblems = subs.reduce((s, sub) => s + sub.lessons.reduce((s2, l) => s2 + l.attempted_count, 0), 0)
+  // Sections-completed drives the bar once at least one is fully done;
+  // before that, the finer per-problem ratio gives visible feedback instead
+  // of a flat empty bar while the student is still partway through the
+  // first lesson.
+  const pct = done > 0
+    ? done / total
+    : totalProblems > 0 ? attemptedProblems / totalProblems : 0
 
   return (
     <button
@@ -266,6 +278,8 @@ function TopicProgressCard({
       style={
         isComplete
           ? { borderColor: '#b8dfca', boxShadow: '0 2px 12px -6px rgba(42,125,95,0.1)' }
+          : anyAttempted
+          ? { borderColor: '#f5d9c2', boxShadow: '0 2px 12px -6px rgba(232,98,44,0.08)' }
           : { borderColor: '#f0e5d4' }
       }
     >
@@ -276,6 +290,8 @@ function TopicProgressCard({
         </h3>
         {isComplete
           ? <CheckCircle2 className="w-5 h-5 text-success flex-shrink-0 mt-0.5" />
+          : anyAttempted
+          ? <div className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-1.5" style={{ background: '#e8622c' }} />
           : <ChevronRight className="w-5 h-5 text-muted flex-shrink-0 mt-0.5 opacity-0 group-hover:opacity-60 transition-opacity" />
         }
       </div>
@@ -290,6 +306,8 @@ function TopicProgressCard({
             <span className="font-semibold text-success">{t('topics.completed')}</span>
           ) : done > 0 ? (
             <span>{Math.round(pct * 100)}%</span>
+          ) : anyAttempted ? (
+            <span className="font-semibold" style={{ color: '#e8622c' }}>{t('topics.in_progress')}</span>
           ) : total > 0 ? (
             <span>{t('topics.not_started')}</span>
           ) : null}
