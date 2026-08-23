@@ -189,8 +189,13 @@ export default function StudentTest() {
     function handleHide() {
       if (!currentProblemId) return
       const q = qStatesRef.current[currentProblemId] ?? fresh()
-      // Only flag if the question is completely fresh (never submitted)
-      if (q.status === 'idle' && q.attempts === 0 && !q.cheatFlagged) {
+      // Flag while the question is still unanswered (idle or skipped) — a
+      // skip must not exempt a question from anti-cheat: if the student
+      // leaves the tab while a skipped question is active and comes back to
+      // answer it, that still counts as cheating and blocks the point.
+      // 'wrong'/'correct' are excluded since points are already governed by
+      // isRetry/status there.
+      if ((q.status === 'idle' || q.status === 'skipped') && q.attempts === 0 && !q.cheatFlagged) {
         setQStates(prev => ({
           ...prev,
           [currentProblemId]: { ...prev[currentProblemId], cheatFlagged: true },

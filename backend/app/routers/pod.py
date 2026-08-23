@@ -246,7 +246,26 @@ def delete_pod(pod_id: UUID, db: Session = Depends(get_db), _=Depends(require_ad
     pod = db.query(ProblemOfDay).filter(ProblemOfDay.id == pod_id).first()
     if not pod:
         raise HTTPException(404)
+    deleted_date = pod.date
     db.delete(pod)
+    db.flush()
+
+    # Close the gap: every later-scheduled entry moves one day earlier, so the
+    # queue stays a contiguous run of consecutive days (no empty day left
+    # behind). Ascending-date order guarantees each target day is already
+    # vacated by the time we move into it, avoiding the unique(date) collision.
+    later = (
+        db.query(ProblemOfDay)
+        .filter(ProblemOfDay.date > deleted_date)
+        .order_by(ProblemOfDay.date.asc())
+        .all()
+    )
+    for p in later:
+        new_date = p.date - timedelta(days=1)
+        p.date = new_date
+        p.active_from, p.active_until = _active_window(new_date)
+        db.flush()
+
     db.commit()
     return {"ok": True}
 
