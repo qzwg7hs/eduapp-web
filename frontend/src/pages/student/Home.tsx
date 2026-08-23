@@ -61,7 +61,11 @@ export default function StudentHome() {
 
   useEffect(() => {
     api.get<PodStatusOut>('/pod/today', { params: { language: locale } })
-      .then(r => setPodTaken(r.data.status === 'locked'))
+      // 'locked' = already answered today; 'none' = nothing scheduled yet
+      // (e.g. today's was just done and tomorrow's queue entry doesn't
+      // exist/isn't active yet) — both mean "nothing to start right now",
+      // only 'available' should show the Бастау button.
+      .then(r => setPodTaken(r.data.status !== 'available'))
       .catch(() => setPodTaken(false))
   }, [locale])
 
