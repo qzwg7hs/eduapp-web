@@ -32,6 +32,9 @@ class Topic(Base):
     is_draft = Column(Boolean, default=True)
     is_published = Column(Boolean, default=False)
     language = Column(String, nullable=False, default="kz", server_default="kz")
+    # Shared between this topic's kz row and its ru counterpart (same content,
+    # different language) so progress/navigation can treat them as one thing.
+    pair_key = Column(UUID(as_uuid=True), nullable=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     subtopics = relationship(
@@ -50,6 +53,7 @@ class SubTopic(Base):
     is_draft = Column(Boolean, default=True)
     is_published = Column(Boolean, default=False)
     language = Column(String, nullable=False, default="kz", server_default="kz")
+    pair_key = Column(UUID(as_uuid=True), nullable=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     topic = relationship("Topic", back_populates="subtopics")
@@ -71,6 +75,7 @@ class Lesson(Base):
     is_draft = Column(Boolean, default=True)
     is_published = Column(Boolean, default=False)
     language = Column(String, nullable=False, default="kz", server_default="kz")
+    pair_key = Column(UUID(as_uuid=True), nullable=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     subtopic = relationship("SubTopic", back_populates="lessons")
@@ -103,6 +108,7 @@ class Problem(Base):
     number = Column(Integer, nullable=True)         # problem number within the docx
     answer_text = Column(Text, nullable=True)       # raw text answer from docx
     source_file_url = Column(String, nullable=True) # R2 URL of the uploaded .docx
+    pair_key = Column(UUID(as_uuid=True), nullable=True, index=True)
     language = Column(String, nullable=False, default="kz", server_default="kz")
 
     lesson = relationship("Lesson", back_populates="problems")

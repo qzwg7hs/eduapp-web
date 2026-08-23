@@ -71,6 +71,16 @@ def _run_migrations():
         with engine.begin() as conn:
             conn.execute(text("ALTER TABLE problem_attempts ADD COLUMN is_skip BOOLEAN DEFAULT false"))
 
+    # pair_key: links a kz row to its ru counterpart (same topic/subtopic/
+    # lesson/problem, different language) so progress and navigation can
+    # treat them as one thing. Backfilled separately by a one-off script.
+    for table in ('topics', 'subtopics', 'subsubtopics', 'problems'):
+        cols = {c['name'] for c in insp.get_columns(table)}
+        if 'pair_key' not in cols:
+            with engine.begin() as conn:
+                conn.execute(text(f"ALTER TABLE {table} ADD COLUMN pair_key UUID"))
+                conn.execute(text(f"CREATE INDEX IF NOT EXISTS ix_{table}_pair_key ON {table} (pair_key)"))
+
     # Fix problems stuck as is_draft=True inside published lessons.
     # These were created by bulk upload before the is_draft=False fix was applied.
     # The publish cascade was skipping them; this repairs existing data.
