@@ -6,6 +6,7 @@ import { useI18n } from '@/contexts/I18nContext'
 import { Lesson, Problem, ProblemAttempt } from '@/types'
 import LessonRenderer from '@/components/LessonRenderer'
 import LatexText from '@/components/LatexText'
+import { useLanguageSwitchRedirect } from '@/hooks/useLanguageSwitchRedirect'
 
 type Phase = 'explanation' | 'problems' | 'hard_problems' | 'completed'
 
@@ -93,6 +94,8 @@ export default function StudentLesson() {
     setSessionPoints(0); setLoading(true); setCheatDetected(false)
     loadAll()
   }, [id])
+
+  useLanguageSwitchRedirect('lesson', id, (newId) => `/student/lesson/${newId}`, location.state)
 
   async function loadAll() {
     const [lessonRes, problemsRes, bestRes, progressRes] = await Promise.all([

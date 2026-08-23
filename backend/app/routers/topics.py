@@ -29,6 +29,36 @@ def list_topics(language: str = "kz", db: Session = Depends(get_db), _=Depends(g
     return db.query(Topic).filter(Topic.language == language).order_by(Topic.order_index).all()
 
 
+@router.get("/translate")
+def translate_id(
+        type: str,
+        id: UUID,
+        target_language: str,
+        db: Session = Depends(get_db),
+        _=Depends(get_current_user),
+):
+    """Resolve a topic/lesson id to its pair_key counterpart in another
+    language — lets the frontend switch the KZ/RU toggle while inside a
+    specific topic/lesson/test page and land on the *same content*, instead
+    of the language switch only re-skinning the UI chrome around stale
+    content. Returns {"id": null} if there's no linked counterpart (content
+    without a pair_key, or not yet backfilled)."""
+    model = {"topic": Topic, "lesson": Lesson}.get(type)
+    if model is None:
+        raise HTTPException(400, "type must be 'topic' or 'lesson'")
+
+    row = db.query(model).filter(model.id == id).first()
+    if not row or not row.pair_key:
+        return {"id": None}
+
+    counterpart = (
+        db.query(model)
+        .filter(model.pair_key == row.pair_key, model.language == target_language)
+        .first()
+    )
+    return {"id": str(counterpart.id) if counterpart else None}
+
+
 @router.post("", response_model=TopicOut)
 def create_topic(body: TopicCreate, db: Session = Depends(get_db), _=Depends(require_admin)):
     count = db.query(Topic).filter(Topic.language == body.language).count()

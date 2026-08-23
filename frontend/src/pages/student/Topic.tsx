@@ -4,6 +4,7 @@ import api from '@/api/client'
 import { useI18n } from '@/contexts/I18nContext'
 import { TopicInTree } from '@/types'
 import { SubtopicsView } from './Topics'
+import { useLanguageSwitchRedirect } from '@/hooks/useLanguageSwitchRedirect'
 
 // Renders the exact same subtopic/lesson/test browsing UI as "Тақырыптар"
 // (Topics.tsx's SubtopicsView) so a topic looks and behaves identically
@@ -24,7 +25,17 @@ export default function StudentTopic() {
       setLoading(false)
     }
     load()
-  }, [id, locale])
+    // Deliberately NOT keyed on `locale`: a locale change while viewing a
+    // specific topic is handled entirely by useLanguageSwitchRedirect below,
+    // which resolves the counterpart id and updates the `id` route param —
+    // that's what re-triggers this fetch (with the fresh locale value read
+    // above). Reacting to `locale` directly here too would race the redirect
+    // (this effect refetching the tree in the new language before the id has
+    // been translated, briefly showing "not found").
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id])
+
+  useLanguageSwitchRedirect('topic', id, (newId) => `/student/topic/${newId}`)
 
   if (loading) {
     return (

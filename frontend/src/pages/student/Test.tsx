@@ -6,6 +6,7 @@ import { useI18n } from '@/contexts/I18nContext'
 import { Problem, ProblemAttempt } from '@/types'
 import LatexText from '@/components/LatexText'
 import { ChevronLeft, Lock, AlertTriangle, CheckCircle2, XCircle } from 'lucide-react'
+import { useLanguageSwitchRedirect } from '@/hooks/useLanguageSwitchRedirect'
 
 // ─── Per-question state ───────────────────────────────────────────────────────
 
@@ -137,6 +138,8 @@ export default function StudentTest() {
       setLoading(false)
     })
   }, [id])
+
+  useLanguageSwitchRedirect('lesson', id, (newId) => `/student/test/${newId}`, state)
 
   // ─── Derived ─────────────────────────────────────────────────────────────
 

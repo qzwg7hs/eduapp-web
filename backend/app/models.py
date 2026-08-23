@@ -143,6 +143,13 @@ class ProblemAttempt(Base):
     selected_options = Column(JSON, default=list)       # MCQ: [0] or [0, 2]
     open_answer_given = Column(String, nullable=True)   # Open: raw string typed by student
     is_skip = Column(Boolean, default=False, server_default='false')  # student explicitly skipped, not a real answer
+    # True for the synthetic echo written onto a problem's pair_key sibling
+    # (other language) when the real attempt happens on this problem's
+    # counterpart — keeps per-problem status (best-attempt, level-unlock,
+    # "already answered") language-consistent without being a real activity
+    # event itself, so it's excluded from activity-style stats (total
+    # attempts, problems-solved count) to avoid double-counting.
+    is_mirror = Column(Boolean, default=False, server_default='false')
     attempted_at = Column(DateTime, default=datetime.utcnow)
 
 
@@ -166,6 +173,11 @@ class StudentProgress(Base):
     subsubtopic_id = Column(UUID(as_uuid=True), ForeignKey("subsubtopics.id", ondelete="CASCADE"), nullable=False)
     is_completed = Column(Boolean, default=False)
     completed_at = Column(DateTime, nullable=True)
+    # True for the synthetic echo written onto this lesson's pair_key sibling
+    # (other language) when the lesson was actually completed in its
+    # counterpart — excluded from the lessons_completed stat to avoid
+    # double-counting one conceptual lesson done in either language.
+    is_mirror = Column(Boolean, default=False, server_default='false')
 
 
 class ProblemReport(Base):

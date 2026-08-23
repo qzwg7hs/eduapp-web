@@ -21,6 +21,41 @@ def calc_points(is_hard: bool, hints_used: int) -> int:
     return scale[min(hints_used, 4)]
 
 
+def _mirror_to_pair_sibling(db: Session, student_id, problem: Problem, attempt: ProblemAttempt) -> None:
+    """Cross-language progress consistency: if this problem has a paired
+    counterpart in the other language (same content, linked via pair_key),
+    record the identical outcome against the sibling's own id too. This way
+    every existing per-problem-id read path (best-attempt lookup, stats,
+    level-unlock, "already answered" checks) sees consistent state no matter
+    which language the student actually answered in — without needing to
+    change any of those read paths.
+
+    points_earned is always 0 on the mirror: the real point was already
+    awarded once against the original problem_id, and profile.points was
+    already incremented — mirroring it again would double-count.
+    """
+    if not problem.pair_key:
+        return
+    sibling = (
+        db.query(Problem)
+        .filter(Problem.pair_key == problem.pair_key, Problem.id != problem.id)
+        .first()
+    )
+    if not sibling:
+        return
+    db.add(ProblemAttempt(
+        student_id=student_id,
+        problem_id=sibling.id,
+        is_correct=attempt.is_correct,
+        hints_used=attempt.hints_used,
+        points_earned=0,
+        selected_options=attempt.selected_options,
+        open_answer_given=attempt.open_answer_given,
+        is_skip=attempt.is_skip,
+        is_mirror=True,
+    ))
+
+
 def _parse_open_answer(raw: str) -> list[float]:
     """Parse a student's open-answer string into a list of numbers."""
     parts = [p.strip().replace(',', '.') for p in raw.replace(';', ',').split(',') if p.strip()]
@@ -341,6 +376,7 @@ def submit_attempt(body: AttemptCreate, db: Session = Depends(get_db), current_u
         open_answer_given=body.open_answer_given,
     )
     db.add(attempt)
+    _mirror_to_pair_sibling(db, current_user.id, problem, attempt)
 
     if pts > 0:
         # Atomic SQL-level increment (UPDATE ... SET points = points + :pts) —
@@ -376,6 +412,7 @@ def skip_problem(body: SkipCreate, db: Session = Depends(get_db), current_user: 
         is_skip=True,
     )
     db.add(attempt)
+    _mirror_to_pair_sibling(db, current_user.id, problem, attempt)
     db.commit()
     db.refresh(attempt)
     return attempt

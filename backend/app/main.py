@@ -81,6 +81,17 @@ def _run_migrations():
                 conn.execute(text(f"ALTER TABLE {table} ADD COLUMN pair_key UUID"))
                 conn.execute(text(f"CREATE INDEX IF NOT EXISTS ix_{table}_pair_key ON {table} (pair_key)"))
 
+    # is_mirror: flags synthetic cross-language echo rows (see models.py) so
+    # activity stats can exclude them and avoid double-counting.
+    attempt_cols2 = {c['name'] for c in insp.get_columns('problem_attempts')}
+    if 'is_mirror' not in attempt_cols2:
+        with engine.begin() as conn:
+            conn.execute(text("ALTER TABLE problem_attempts ADD COLUMN is_mirror BOOLEAN DEFAULT false"))
+    progress_cols = {c['name'] for c in insp.get_columns('student_progress')}
+    if 'is_mirror' not in progress_cols:
+        with engine.begin() as conn:
+            conn.execute(text("ALTER TABLE student_progress ADD COLUMN is_mirror BOOLEAN DEFAULT false"))
+
     # Fix problems stuck as is_draft=True inside published lessons.
     # These were created by bulk upload before the is_draft=False fix was applied.
     # The publish cascade was skipping them; this repairs existing data.
