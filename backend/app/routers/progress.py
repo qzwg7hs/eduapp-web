@@ -226,13 +226,11 @@ def admin_overview(db: Session = Depends(get_db)):
     from ..models import Topic, Problem
 
     students = db.query(Profile).filter(Profile.role == "student").all()
-    avg_points = round(sum(s.points for s in students) / len(students)) if students else 0
 
     return {
         "total_students": len(students),
         "total_topics": db.query(Topic).count(),
         "total_problems": db.query(Problem).count(),
-        "avg_points": avg_points,
         "top_students": [
             {"name": s.name, "surname": s.surname, "points": s.points}
             for s in sorted(students, key=lambda x: x.points, reverse=True)[:5]

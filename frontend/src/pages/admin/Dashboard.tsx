@@ -8,7 +8,6 @@ interface Stats {
   total_students: number
   total_topics: number
   total_problems: number
-  avg_points: number
   top_students: { name: string; surname: string; points: number }[]
 }
 
@@ -26,7 +25,6 @@ export default function AdminDashboard() {
     { label: t('admin.stats.students'),   value: stats.total_students, icon: '👥', color: 'text-primary' },
     { label: t('admin.stats.topics'),     value: stats.total_topics,   icon: '📚', color: 'text-success' },
     { label: t('admin.stats.problems'),   value: stats.total_problems, icon: '✏️',  color: 'text-warning' },
-    { label: t('admin.stats.avg_points'), value: stats.avg_points,     icon: '⭐', color: 'text-gold' },
   ] : []
 
   const quickActions = [
@@ -47,7 +45,7 @@ export default function AdminDashboard() {
       </div>
 
       {stats && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+        <div className="grid grid-cols-3 gap-3 mb-8">
           {statCards.map(s => (
             <div key={s.label} className="card flex flex-col items-center py-4">
               <span className="text-2xl mb-1">{s.icon}</span>
