@@ -61,7 +61,11 @@ export default function StudentTestBank() {
     const payload: Record<string, Answer> = {}
     Object.entries(answersRef.current).forEach(([num, a]) => { payload[num] = a })
     try {
-      const { data } = await api.post<ExamStatusOut>('/test-bank/submit', { answers: payload, terminated: terminatedFlag })
+      const { data } = await api.post<ExamStatusOut>(
+        '/test-bank/submit',
+        { answers: payload, terminated: terminatedFlag },
+        { params: { language: locale } },
+      )
       setStatus(data)
       await refreshProfile()
     } finally {

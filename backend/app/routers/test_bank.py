@@ -69,21 +69,28 @@ def _get_or_create_exam(db: Session, student: Profile, exam_date: date, language
     return exam
 
 
-def _fetch_problems(db: Session, exam: DailyExam) -> dict[int, TestBankProblem]:
+def _fetch_problems(db: Session, exam: DailyExam, display_language: str) -> dict[int, TestBankProblem]:
     if not exam.question_numbers:
         return {}
     rows = db.query(TestBankProblem).filter(
-        TestBankProblem.language == exam.language,
+        TestBankProblem.language == display_language,
         TestBankProblem.number.in_(exam.question_numbers),
     ).all()
     return {p.number: p for p in rows}
 
 
-def _status_response(db: Session, exam: DailyExam) -> ExamStatusOut:
+def _status_response(db: Session, exam: DailyExam, display_language: str | None = None) -> ExamStatusOut:
+    # question_numbers are the cross-language canonical identity (see
+    # rebuild_testbank.py) — the exam's assigned question set never changes,
+    # but WHICH language's row we display it in should follow the caller's
+    # current request, not exam.language (fixed once at creation/start
+    # time). Falls back to exam.language only if no display language was
+    # given, so nothing breaks if this is ever called without one.
+    lang = display_language or exam.language
     total = len(exam.question_numbers or [])
 
     if exam.submitted_at:
-        problems = _fetch_problems(db, exam)
+        problems = _fetch_problems(db, exam, lang)
         results = []
         for n in exam.question_numbers:
             p = problems.get(n)
@@ -108,7 +115,7 @@ def _status_response(db: Session, exam: DailyExam) -> ExamStatusOut:
         )
 
     if exam.started_at:
-        problems = _fetch_problems(db, exam)
+        problems = _fetch_problems(db, exam, lang)
         questions = [
             ExamQuestionOut(
                 id=problems[n].id, number=n,
@@ -135,7 +142,7 @@ def _status_response(db: Session, exam: DailyExam) -> ExamStatusOut:
 @router.get("/today", response_model=ExamStatusOut)
 def get_today(language: str = "kz", db: Session = Depends(get_db), current_user: Profile = Depends(require_student)):
     exam = _get_or_create_exam(db, current_user, _today_utc5(), language)
-    return _status_response(db, exam)
+    return _status_response(db, exam, display_language=language)
 
 
 @router.post("/start", response_model=ExamStatusOut)
@@ -145,11 +152,11 @@ def start_exam(language: str = "kz", db: Session = Depends(get_db), current_user
         exam.started_at = datetime.utcnow()
         db.commit()
         db.refresh(exam)
-    return _status_response(db, exam)
+    return _status_response(db, exam, display_language=language)
 
 
 @router.post("/submit", response_model=ExamStatusOut)
-def submit_exam(body: ExamSubmitRequest, db: Session = Depends(get_db), current_user: Profile = Depends(require_student)):
+def submit_exam(body: ExamSubmitRequest, language: str = "kz", db: Session = Depends(get_db), current_user: Profile = Depends(require_student)):
     exam = db.query(DailyExam).filter(
         DailyExam.student_id == current_user.id,
         DailyExam.exam_date == _today_utc5(),
@@ -157,9 +164,13 @@ def submit_exam(body: ExamSubmitRequest, db: Session = Depends(get_db), current_
     if not exam:
         raise HTTPException(404, "No exam found for today")
     if exam.submitted_at:
-        return _status_response(db, exam)  # idempotent — don't re-grade or re-award points
+        return _status_response(db, exam, display_language=language)  # idempotent — don't re-grade or re-award points
 
-    problems = _fetch_problems(db, exam)
+    # Grading always uses exam.language (what was actually shown when the
+    # student picked each answer) — MCQ option order matches 1:1 across the
+    # language pair for the same question number, so this is correct
+    # regardless of which language was displayed at submit time.
+    problems = _fetch_problems(db, exam, exam.language)
     answers_out: dict = {}
     results_out: dict = {}
     score = 0
@@ -195,7 +206,7 @@ def submit_exam(body: ExamSubmitRequest, db: Session = Depends(get_db), current_
 
     db.commit()
     db.refresh(exam)
-    return _status_response(db, exam)
+    return _status_response(db, exam, display_language=language)
 
 
 # ── Admin ───────────────────────────────────────────────────────────────────
