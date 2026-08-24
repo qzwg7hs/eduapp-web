@@ -139,6 +139,26 @@ def _status_response(db: Session, exam: DailyExam, display_language: str | None 
 
 # ── Student ─────────────────────────────────────────────────────────────────
 
+@router.get("/history")
+def get_exam_history(db: Session = Depends(get_db), current_user: Profile = Depends(require_student)):
+    """Score trend for the daily Test Bank exam — one point per submitted
+    day, oldest first, for the student's own score-over-time chart."""
+    exams = (
+        db.query(DailyExam)
+        .filter(DailyExam.student_id == current_user.id, DailyExam.submitted_at.isnot(None))
+        .order_by(DailyExam.exam_date.asc())
+        .all()
+    )
+    return [
+        {
+            "exam_date": e.exam_date.isoformat(),
+            "score": e.score,
+            "total": len(e.question_numbers or []),
+        }
+        for e in exams
+    ]
+
+
 @router.get("/today", response_model=ExamStatusOut)
 def get_today(language: str = "kz", db: Session = Depends(get_db), current_user: Profile = Depends(require_student)):
     exam = _get_or_create_exam(db, current_user, _today_utc5(), language)

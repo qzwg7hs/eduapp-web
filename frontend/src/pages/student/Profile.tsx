@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react'
 import api from '@/api/client'
 import { useAuth } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
+import ScoreTrendChart from '@/components/ScoreTrendChart'
+
+interface ExamHistoryPoint { exam_date: string; score: number; total: number }
 
 type T = (key: string, vars?: Record<string, string | number>) => string
 
@@ -33,9 +36,11 @@ export default function StudentProfile() {
   const { t } = useI18n()
   const [stats, setStats] = useState({ total_attempts: 0, correct_attempts: 0, problems_solved: 0, pod_solved: 0, lessons_completed: 0 })
   const [loading, setLoading] = useState(true)
+  const [examHistory, setExamHistory] = useState<ExamHistoryPoint[]>([])
 
   useEffect(() => {
     api.get('/progress/stats').then(r => { setStats(r.data); setLoading(false) })
+    api.get<ExamHistoryPoint[]>('/test-bank/history').then(r => setExamHistory(r.data)).catch(() => setExamHistory([]))
   }, [])
 
   if (!profile || loading) return (
@@ -80,6 +85,12 @@ export default function StudentProfile() {
         <div className="h-2.5 bg-border rounded-full overflow-hidden">
           <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(goalPct, 100)}%`, backgroundColor: rank.color }} />
         </div>
+      </div>
+
+      {/* Daily exam score trend */}
+      <div className="card" style={{ boxShadow: '0 4px 16px -8px rgba(44,36,24,0.1)' }}>
+        <h3 className="font-display font-semibold text-base text-gray-900 mb-3">{t('profile.score_trend')}</h3>
+        <ScoreTrendChart data={examHistory} emptyLabel={t('profile.score_trend_empty')} />
       </div>
 
       {/* Stats grid */}

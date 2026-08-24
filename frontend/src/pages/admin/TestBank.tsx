@@ -25,6 +25,40 @@ const defaultForm = (): FormState => ({
   opts: ['', '', '', ''], correctOpts: [0], answerValue: '', imageUrl: '',
 })
 
+// Editable "page N / total" between the prev/next buttons — lets the admin
+// jump straight to a page instead of clicking through one at a time.
+// Local input state so the field can be freely cleared/retyped while
+// editing; the jump only commits (clamped to [1, totalPages]) on blur/Enter.
+function PageJumpInput({ page, totalPages, onJump }: { page: number; totalPages: number; onJump: (p: number) => void }) {
+  const [text, setText] = useState(String(page + 1))
+  useEffect(() => { setText(String(page + 1)) }, [page])
+
+  function commit() {
+    const n = parseInt(text, 10)
+    if (Number.isFinite(n)) {
+      onJump(Math.min(Math.max(n, 1), totalPages) - 1)
+    } else {
+      setText(String(page + 1))
+    }
+  }
+
+  return (
+    <span className="flex items-center gap-1 px-1 text-xs text-muted font-medium">
+      <input
+        type="number"
+        min={1}
+        max={totalPages}
+        value={text}
+        onChange={e => setText(e.target.value)}
+        onBlur={commit}
+        onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }}
+        className="w-12 text-center rounded-md border border-border py-1 text-xs"
+      />
+      / {totalPages}
+    </span>
+  )
+}
+
 export default function AdminTestBank() {
   const { t } = useI18n()
 
@@ -291,7 +325,7 @@ export default function AdminTestBank() {
                 <button className="p-1.5 rounded-lg border border-border text-muted hover:bg-gray-50 disabled:opacity-40" disabled={page === 0} onClick={() => setPage(p => p - 1)}>
                   <ChevronLeft className="w-4 h-4" />
                 </button>
-                <span className="px-3 text-xs text-muted font-medium">{page + 1} / {totalPages}</span>
+                <PageJumpInput page={page} totalPages={totalPages} onJump={setPage} />
                 <button className="p-1.5 rounded-lg border border-border text-muted hover:bg-gray-50 disabled:opacity-40" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>
                   <ChevronRight className="w-4 h-4" />
                 </button>

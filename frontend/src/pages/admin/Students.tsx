@@ -3,6 +3,7 @@ import api from '@/api/client'
 import { Profile } from '@/types'
 import { useI18n } from '@/contexts/I18nContext'
 import { CheckCircle2, XCircle, ChevronDown, ChevronUp, Search, X, Eye, EyeOff } from 'lucide-react'
+import ScoreTrendChart from '@/components/ScoreTrendChart'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -444,6 +445,12 @@ function ResultsView({
       {exams.length > 0 && (
         <div className="mb-6">
           <p className="text-xs font-bold text-muted uppercase tracking-wider mb-2">Тест банкі / Банк тестов</p>
+          <div className="rounded-xl px-3 py-3 mb-3" style={{ background: '#f9f6f1', border: '1px solid #f0e5d4' }}>
+            <ScoreTrendChart
+              data={[...exams].reverse().map(e => ({ exam_date: e.exam_date, score: e.score, total: e.total }))}
+              emptyLabel="Нет данных"
+            />
+          </div>
           <div className="space-y-1.5">
             {exams.map(e => (
               <div key={e.exam_date} className="flex items-center justify-between px-3 py-2 rounded-lg text-sm" style={{ background: '#f9f6f1', border: '1px solid #f0e5d4' }}>
