@@ -358,6 +358,11 @@ export default function AdminPod() {
                 value={form.descriptionKz}
                 onChange={e => setForm(f => ({ ...f, descriptionKz: e.target.value }))}
               />
+              {form.descriptionKz && (
+                <div className="mt-2 p-3 bg-gray-50 rounded-lg text-sm text-gray-800">
+                  <LatexText text={form.descriptionKz} />
+                </div>
+              )}
             </div>
 
             <div>
@@ -367,6 +372,11 @@ export default function AdminPod() {
                 value={form.descriptionRu}
                 onChange={e => setForm(f => ({ ...f, descriptionRu: e.target.value }))}
               />
+              {form.descriptionRu && (
+                <div className="mt-2 p-3 bg-gray-50 rounded-lg text-sm text-gray-800">
+                  <LatexText text={form.descriptionRu} />
+                </div>
+              )}
             </div>
 
             <div>

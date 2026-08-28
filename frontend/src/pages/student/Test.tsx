@@ -607,7 +607,7 @@ export default function StudentTest() {
               style={{ background: '#fdf1d6', border: '1px solid #f5d980' }}
             >
               <p className="text-xs font-bold text-warning mb-1">{t('lesson.hint')}</p>
-              <p className="text-sm text-gray-800">{problem.hint1}</p>
+              <p className="text-sm text-gray-800"><LatexText text={problem.hint1} /></p>
               <p className="text-xs text-muted mt-2">{t('test.hint_warning')}</p>
             </div>
           )}

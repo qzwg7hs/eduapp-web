@@ -452,12 +452,19 @@ export default function AdminTestBank() {
                     >
                       {['A', 'B', 'C', 'D', 'E', 'F'][i]}
                     </button>
-                    <input
-                      className="input"
-                      value={opt}
-                      onChange={e => { const o = [...form.opts]; o[i] = e.target.value; setForm(f => ({ ...f, opts: o })) }}
-                      placeholder={`${['A', 'B', 'C', 'D', 'E', 'F'][i]}`}
-                    />
+                    <div className="flex-1">
+                      <input
+                        className="input"
+                        value={opt}
+                        onChange={e => { const o = [...form.opts]; o[i] = e.target.value; setForm(f => ({ ...f, opts: o })) }}
+                        placeholder={`${['A', 'B', 'C', 'D', 'E', 'F'][i]}`}
+                      />
+                      {opt && (
+                        <div className="mt-1 px-2.5 py-1.5 bg-gray-50 rounded-lg text-sm text-gray-800">
+                          <LatexText text={opt} />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ))}
                 <button type="button" className="text-xs text-primary font-medium" onClick={() => setForm(f => ({ ...f, opts: [...f.opts, ''] }))} disabled={form.opts.length >= 6}>

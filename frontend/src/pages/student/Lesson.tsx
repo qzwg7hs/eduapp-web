@@ -282,7 +282,7 @@ export default function StudentLesson() {
         <div className="card mt-2">
           {lesson?.content_blocks && lesson.content_blocks.length > 0
             ? <LessonRenderer blocks={lesson.content_blocks} />
-            : <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">{lesson?.explanation}</p>
+            : <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap"><LatexText text={lesson?.explanation ?? ''} /></p>
           }
         </div>
 
@@ -452,7 +452,7 @@ export default function StudentLesson() {
           ) : (
             <div className="bg-warning-light border border-yellow-200 rounded-xl p-3">
               <p className="text-xs font-semibold text-warning mb-1">{t('lesson.hint')}</p>
-              <p className="text-sm text-gray-800">{problem.hint1}</p>
+              <p className="text-sm text-gray-800"><LatexText text={problem.hint1} /></p>
             </div>
           )}
         </div>

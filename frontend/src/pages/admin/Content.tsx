@@ -1091,12 +1091,19 @@ export default function AdminContent() {
                       >
                         {['A','B','C','D','E','F'][i]}
                       </button>
-                      <input
-                        className="input"
-                        value={opt}
-                        onChange={e => { const o = [...form.opts]; o[i] = e.target.value; setForm(f => ({ ...f, opts: o })) }}
-                        placeholder={t('admin.problem.option_placeholder', { letter: ['A','B','C','D','E','F'][i] })}
-                      />
+                      <div className="flex-1">
+                        <input
+                          className="input"
+                          value={opt}
+                          onChange={e => { const o = [...form.opts]; o[i] = e.target.value; setForm(f => ({ ...f, opts: o })) }}
+                          placeholder={t('admin.problem.option_placeholder', { letter: ['A','B','C','D','E','F'][i] })}
+                        />
+                        {opt && (
+                          <div className="mt-1 px-2.5 py-1.5 bg-gray-50 rounded-lg text-sm text-gray-800">
+                            <LatexText text={opt} />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))}
                   <button type="button" className="text-xs text-primary font-medium" onClick={() => setForm(f => ({ ...f, opts: [...f.opts, ''] }))} disabled={form.opts.length >= 6}>
@@ -1146,6 +1153,11 @@ export default function AdminContent() {
                     onChange={e => setForm(f => ({ ...f, hint: e.target.value }))}
                     placeholder={t('admin.problem.hint_placeholder')}
                   />
+                  {form.hint && (
+                    <div className="mt-2 p-3 bg-gray-50 rounded-lg text-sm text-gray-800">
+                      <LatexText text={form.hint} />
+                    </div>
+                  )}
                 </div>
               )}
               <div className="flex gap-3">
