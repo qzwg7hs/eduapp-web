@@ -78,7 +78,7 @@ export function LessonCard({
             className="h-full rounded-full transition-all duration-500"
             style={{
               width: `${locked ? 0 : progressPct}%`,
-              background: completed ? '#2a7d5f' : '#e8622c',
+              background: completed ? '#2a7d5f' : 'var(--accent, #e8622c)',
             }}
           />
         </div>
@@ -205,7 +205,7 @@ export function SubtopicsView({
                   {subDone
                     ? <CheckCircle2 className="w-4 h-4 text-success flex-shrink-0" />
                     : subInProgress
-                    ? <div className="w-4 h-4 rounded-full flex-shrink-0" style={{ background: '#e8622c' }} />
+                    ? <div className="w-4 h-4 rounded-full flex-shrink-0" style={{ background: 'var(--accent, #e8622c)' }} />
                     : <div className="w-4 h-4 rounded-full border-2 flex-shrink-0" style={{ borderColor: '#d1d5db' }} />
                   }
                   <h2 className="font-display font-semibold text-base text-gray-800 truncate">
@@ -279,7 +279,7 @@ function TopicProgressCard({
         isComplete
           ? { borderColor: '#b8dfca', boxShadow: '0 2px 12px -6px rgba(42,125,95,0.1)' }
           : anyAttempted
-          ? { borderColor: '#f5d9c2', boxShadow: '0 2px 12px -6px rgba(232,98,44,0.08)' }
+          ? { borderColor: '#f5d9c2', boxShadow: '0 2px 12px -6px color-mix(in srgb, var(--accent, #e8622c) 8%, transparent)' }
           : { borderColor: '#f0e5d4' }
       }
     >
@@ -291,7 +291,7 @@ function TopicProgressCard({
         {isComplete
           ? <CheckCircle2 className="w-5 h-5 text-success flex-shrink-0 mt-0.5" />
           : anyAttempted
-          ? <div className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-1.5" style={{ background: '#e8622c' }} />
+          ? <div className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-1.5" style={{ background: 'var(--accent, #e8622c)' }} />
           : <ChevronRight className="w-5 h-5 text-muted flex-shrink-0 mt-0.5 opacity-0 group-hover:opacity-60 transition-opacity" />
         }
       </div>
@@ -307,7 +307,7 @@ function TopicProgressCard({
           ) : done > 0 ? (
             <span>{Math.round(pct * 100)}%</span>
           ) : anyAttempted ? (
-            <span className="font-semibold" style={{ color: '#e8622c' }}>{t('topics.in_progress')}</span>
+            <span className="font-semibold" style={{ color: 'var(--accent, #e8622c)' }}>{t('topics.in_progress')}</span>
           ) : total > 0 ? (
             <span>{t('topics.not_started')}</span>
           ) : null}
@@ -317,7 +317,7 @@ function TopicProgressCard({
             className="h-full rounded-full transition-all duration-500"
             style={{
               width: `${pct * 100}%`,
-              background: isComplete ? '#2a7d5f' : '#e8622c',
+              background: isComplete ? '#2a7d5f' : 'var(--accent, #e8622c)',
             }}
           />
         </div>

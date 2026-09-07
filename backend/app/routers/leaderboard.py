@@ -19,7 +19,10 @@ def _rank_entries(students: list[tuple[Profile, int]]) -> list[LeaderboardEntry]
     for i, (s, pts) in enumerate(students):
         if i == 0 or pts != students[i - 1][1]:
             rank = i + 1
-        entries.append(LeaderboardEntry(rank=rank, name=s.name, surname=s.surname, unique_id=s.unique_id, points=pts))
+        entries.append(LeaderboardEntry(
+            rank=rank, name=s.name, surname=s.surname, unique_id=s.unique_id, points=pts,
+            equipped_border_color=s.equipped_border_color, equipped_avatar_icon=s.equipped_avatar_icon,
+        ))
     return entries
 
 

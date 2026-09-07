@@ -3,6 +3,7 @@ import api from '@/api/client'
 import { useAuth } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
 import { LeaderboardEntry, MonthlyLeaderboardOut } from '@/types'
+import Avatar from '@/components/Avatar'
 
 function getRankTitle(pts: number, t: (key: string) => string) {
   if (pts >= 500) return { title: t('rank.scholar'),      color: '#d99a10' }
@@ -68,7 +69,7 @@ export default function StudentLeaderboard() {
             key={v}
             onClick={() => setView(v)}
             className="flex-1 py-2 rounded-lg text-sm font-semibold transition-colors"
-            style={view === v ? { background: '#e8622c', color: '#fff' } : { color: '#8a8072' }}
+            style={view === v ? { background: 'var(--accent, #e8622c)', color: '#fff' } : { color: '#8a8072' }}
           >
             {v === 'monthly' ? t('lb.tab_monthly') : t('lb.tab_alltime')}
           </button>
@@ -78,7 +79,7 @@ export default function StudentLeaderboard() {
       {/* My rank / my points card */}
       {(myRank > 0 || myPoints > 0) && (
         <div className="rounded-2xl p-5 text-center text-white mb-5"
-             style={{ background: 'linear-gradient(135deg, #e8622c 0%, #d04f1a 100%)', boxShadow: '0 8px 24px -8px rgba(232,98,44,0.55)' }}>
+             style={{ background: 'linear-gradient(135deg, #e8622c 0%, #d04f1a 100%)', boxShadow: '0 8px 24px -8px color-mix(in srgb, var(--accent, #e8622c) 55%, transparent)' }}>
           <p className="text-xs font-semibold uppercase tracking-wider opacity-75">{t('lb.your_rank')}</p>
           {myRank > 0 ? (
             <p className="font-display font-semibold text-5xl my-1">#{myRank}</p>
@@ -111,11 +112,9 @@ export default function StudentLeaderboard() {
                 return (
                   <div key={i} className={`flex flex-col items-center flex-1 ${i === 0 ? 'mb-4' : ''}`}>
                     <span className="text-2xl mb-1">{MEDALS[i]}</span>
-                    <div
-                      className="w-12 h-12 rounded-full flex items-center justify-center border-2 mb-1 font-bold text-sm"
-                      style={{ borderColor: MEDAL_COLORS[i], color: MEDAL_COLORS[i], backgroundColor: MEDAL_COLORS[i] + '22' }}
-                    >
-                      {e.name[0]}{e.surname[0]}
+                    <div className="rounded-full mb-1" style={{ boxShadow: `0 0 0 2px ${MEDAL_COLORS[i]}` }}>
+                      <Avatar name={e.name} surname={e.surname} size="md" isMe={isMe}
+                              borderColor={e.equipped_border_color} icon={e.equipped_avatar_icon} />
                     </div>
                     <p className={`text-xs font-semibold truncate max-w-full text-center ${isMe ? 'text-primary' : 'text-gray-700'}`}>
                       {isMe ? t('lb.you') : e.name}
@@ -141,10 +140,8 @@ export default function StudentLeaderboard() {
                         style={{ color: e.rank <= 3 ? MEDAL_COLORS[medalIdx] : '#8a8072' }}>
                     {e.rank <= 3 ? MEDALS[medalIdx] : `${tied ? '=' : ''}#${e.rank}`}
                   </span>
-                  <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold"
-                       style={{ background: isMe ? '#fdeadd' : '#dff0f0', color: isMe ? '#e8622c' : '#178f8f' }}>
-                    {e.name[0]}{e.surname[0]}
-                  </div>
+                  <Avatar name={e.name} surname={e.surname} size="sm" isMe={isMe}
+                          borderColor={e.equipped_border_color} icon={e.equipped_avatar_icon} />
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm font-semibold truncate ${isMe ? 'text-primary' : 'text-gray-900'}`}>
                       {isMe ? `${e.name} (${t('lb.you')})` : `${e.name} ${e.surname}`}

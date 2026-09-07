@@ -15,6 +15,8 @@ from ..auth import require_admin, require_student
 from ..storage import upload_file_bytes
 from ..test_parser import parse_test_docx
 from ..scoring import award_monthly_points
+from ..streaks import touch_streak
+from ..missions import update_mission_progress
 from .problems import _check_mcq_correct, _check_open_correct
 
 router = APIRouter(prefix="/test-bank", tags=["test-bank"])
@@ -218,6 +220,18 @@ def submit_exam(body: ExamSubmitRequest, language: str = "kz", db: Session = Dep
     exam.score = score
     exam.submitted_at = datetime.utcnow()
     exam.terminated_early = body.terminated
+    touch_streak(db, current_user)  # finishing today's exam counts regardless of score
+
+    today = _today_utc5()
+    if score > 0:
+        # Requires a genuine correct answer, not just a submission — an empty/
+        # blank submit still finishes the daily exam (and counts for the
+        # streak, which only rewards showing up) but must not satisfy a
+        # points-earning mission for zero effort.
+        update_mission_progress(db, current_user.id, "daily_exam_completed_count", 1, "increment", today=today)
+    update_mission_progress(db, current_user.id, "daily_exam_score_sum", score, "increment", today=today)
+    update_mission_progress(db, current_user.id, "daily_exam_single_score", score, "max", today=today)
+
     if score > 0:
         # Atomic SQL-level increment — avoids losing an update when this
         # races with another points-awarding request (see problems.py).

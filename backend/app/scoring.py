@@ -36,6 +36,14 @@ def current_period_key(when: datetime | None = None) -> str:
     return f"{when.year}-{when.month:02d}"
 
 
+def is_bootstrap_period(period_key: str) -> bool:
+    """True for the one-off Aug+Sep 2026 combined period — callers that need
+    to treat it differently (e.g. cosmetics.py's point-ladder, which needs a
+    higher scale for a two-month backlog of points than for a genuine single
+    calendar month) key off this instead of duplicating the raw string."""
+    return period_key == _COMBINED_PERIOD
+
+
 def period_label(period_key: str, language: str = "kz") -> str:
     names = _MONTH_NAMES.get(language, _MONTH_NAMES["kz"])
     if period_key == _COMBINED_PERIOD:

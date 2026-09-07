@@ -18,6 +18,8 @@ import AdminStudents from '@/pages/admin/Students'
 import AdminContent from '@/pages/admin/Content'
 import AdminPod from '@/pages/admin/Pod'
 import AdminTestBank from '@/pages/admin/TestBank'
+import AdminMissions from '@/pages/admin/Missions'
+import AdminNotifications from '@/pages/admin/Notifications'
 
 function RootRedirect() {
   const { profile, loading } = useAuth()
@@ -53,6 +55,8 @@ export default function App() {
             <Route path="content" element={<AdminContent />} />
             <Route path="pod" element={<AdminPod />} />
             <Route path="test-bank" element={<AdminTestBank />} />
+            <Route path="missions" element={<AdminMissions />} />
+            <Route path="notifications" element={<AdminNotifications />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

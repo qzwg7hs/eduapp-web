@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import inspect, text
 
 from .database import engine, Base, settings
-from .routers import auth, topics, problems, pod, students, leaderboard, progress, test_bank
+from .routers import auth, topics, problems, pod, students, leaderboard, progress, test_bank, missions, cosmetics, notifications
 # Note: the "reports" (problem complaints) router is deliberately not mounted —
 # the feature was removed from the product surface. app/routers/reports.py and
 # the ProblemReport model/table are left in place, unused, in case it's revived.
@@ -92,6 +92,22 @@ def _run_migrations():
         with engine.begin() as conn:
             conn.execute(text("ALTER TABLE student_progress ADD COLUMN is_mirror BOOLEAN DEFAULT false"))
 
+    # Streaks + cosmetics columns on profiles.
+    profile_cols = {c['name'] for c in insp.get_columns('profiles')}
+    streak_cosmetic_cols = {
+        'current_streak': "INTEGER DEFAULT 0",
+        'longest_streak': "INTEGER DEFAULT 0",
+        'last_streak_date': "DATE",
+        'freeze_week_key': "VARCHAR",
+        'freeze_used_this_week': "BOOLEAN DEFAULT false",
+        'equipped_border_color': "VARCHAR",
+        'equipped_avatar_icon': "VARCHAR",
+    }
+    for col, ddl in streak_cosmetic_cols.items():
+        if col not in profile_cols:
+            with engine.begin() as conn:
+                conn.execute(text(f"ALTER TABLE profiles ADD COLUMN {col} {ddl}"))
+
     # Fix problems stuck as is_draft=True inside published lessons.
     # These were created by bulk upload before the is_draft=False fix was applied.
     # The publish cascade was skipping them; this repairs existing data.
@@ -125,6 +141,9 @@ app.include_router(students.router, prefix="/api")
 app.include_router(leaderboard.router, prefix="/api")
 app.include_router(progress.router, prefix="/api")
 app.include_router(test_bank.router, prefix="/api")
+app.include_router(missions.router, prefix="/api")
+app.include_router(cosmetics.router, prefix="/api")
+app.include_router(notifications.router, prefix="/api")
 
 
 @app.get("/api/health")

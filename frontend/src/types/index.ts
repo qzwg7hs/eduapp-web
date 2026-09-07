@@ -10,6 +10,10 @@ export interface Profile {
   is_active: boolean;
   username?: string;
   created_at: string;
+  current_streak: number;
+  longest_streak: number;
+  equipped_border_color: string | null;
+  equipped_avatar_icon: string | null;
 }
 
 export type ContentLanguage = 'kz' | 'ru';
@@ -144,6 +148,32 @@ export interface LeaderboardEntry {
   surname: string;
   unique_id: string | null;
   points: number;
+  equipped_border_color: string | null;
+  equipped_avatar_icon: string | null;
+}
+
+export interface MissionOut {
+  id: string;
+  goal_type: string;
+  target: number;
+  progress: number;
+  reward_points: number;
+  completed: boolean;
+  text: string;
+  week_end: string;
+}
+
+export interface CosmeticColor { key: string; hex: string; accent: string; unlocked: boolean; unlock_at: number }
+export interface CosmeticIcon { key: string; unlocked: boolean; unlock_at: number }
+
+export interface CosmeticOptions {
+  current_month_points: number;
+  colors: CosmeticColor[];
+  icons: CosmeticIcon[];
+  equipped_border_color: string | null;
+  equipped_avatar_icon: string | null;
+  equipped_accent: string | null;
+  next_unlock_at: number | null;
 }
 
 export interface MonthlyLeaderboardOut {
@@ -209,6 +239,26 @@ export interface ExamStatusOut {
   score?: number | null;
   total?: number | null;
   terminated_early?: boolean | null;
+}
+
+// Notifications
+export interface NotificationOut {
+  id: string;
+  icon: string | null;
+  title: string;
+  body: string;
+  created_at: string;
+  is_read: boolean;
+}
+
+export interface NotificationAdminOut {
+  id: string;
+  icon: string | null;
+  title_kz: string;
+  title_ru: string;
+  body_kz: string;
+  body_ru: string;
+  created_at: string;
 }
 
 export interface ProblemReport {

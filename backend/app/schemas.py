@@ -25,6 +25,10 @@ class ProfileOut(BaseModel):
     is_active: bool
     username: Optional[str] = None
     created_at: datetime
+    current_streak: int = 0
+    longest_streak: int = 0
+    equipped_border_color: Optional[str] = None
+    equipped_avatar_icon: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -304,6 +308,8 @@ class LeaderboardEntry(BaseModel):
     surname: str
     unique_id: Optional[str]
     points: int
+    equipped_border_color: Optional[str] = None
+    equipped_avatar_icon: Optional[str] = None
 
 
 class MonthlyLeaderboardOut(BaseModel):
@@ -311,6 +317,40 @@ class MonthlyLeaderboardOut(BaseModel):
     period_label: str
     entries: List[LeaderboardEntry]
     my_points: int
+
+
+# ── Weekly missions ─────────────────────────────────────────────────────────
+
+class MissionCreate(BaseModel):
+    goal_type: str
+    target: int
+    reward_points: int = 20
+    week_start: date
+
+
+class MissionAdminOut(BaseModel):
+    id: UUID
+    goal_type: str
+    target: int
+    reward_points: int
+    week_start: date
+    week_end: date
+    text_kz: str
+    text_ru: str
+
+    class Config:
+        from_attributes = True
+
+
+class MissionStudentOut(BaseModel):
+    id: UUID
+    goal_type: str
+    target: int
+    progress: int
+    reward_points: int
+    completed: bool
+    text: str
+    week_end: date
 
 
 # ── Publish helpers ───────────────────────────────────────────────────────────

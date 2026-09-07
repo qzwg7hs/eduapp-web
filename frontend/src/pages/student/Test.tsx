@@ -348,7 +348,7 @@ export default function StudentTest() {
       }
     }
     if (isActive) {
-      return { bg: '#e8622c', color: '#fff', border: '#e8622c', cursor: 'pointer' as const }
+      return { bg: 'var(--accent, #e8622c)', color: '#fff', border: 'var(--accent, #e8622c)', cursor: 'pointer' as const }
     }
     if (isDone) {
       return { bg: '#e7f2ec', color: '#2a7d5f', border: '#b8dfca', cursor: 'pointer' as const }
@@ -434,14 +434,14 @@ export default function StudentTest() {
           if (q.status === 'correct')   { bg = '#2a7d5f'; fg = '#fff'; border = '#2a7d5f' }
           else if (q.status === 'wrong')   { bg = '#fef2f2'; fg = '#dc2626'; border = '#fca5a5' }
           else if (q.status === 'skipped') { bg = '#f3f4f6'; fg = '#9ca3af'; border = '#d1d5db' }
-          if (isCur) { border = '#e8622c' }
+          if (isCur) { border = 'var(--accent, #e8622c)' }
           return (
             <button
               key={p.id}
               onClick={() => setCurIdx(i)}
               className="w-8 h-8 rounded-full text-xs font-bold flex items-center justify-center transition-all"
               style={{
-                background: isCur ? '#e8622c' : bg,
+                background: isCur ? 'var(--accent, #e8622c)' : bg,
                 color:      isCur ? '#fff'    : fg,
                 border:     `2px solid ${border}`,
               }}
@@ -498,7 +498,7 @@ export default function StudentTest() {
             } else if (revealed && isSelected && qs.status === 'wrong') {
               bg = '#fef2f2'; borderColor = '#fca5a5'; textColor = '#dc2626'
             } else if (!revealed && isSelected) {
-              bg = '#fff5f0'; borderColor = '#e8622c'; textColor = '#e8622c'
+              bg = '#fff5f0'; borderColor = 'var(--accent, #e8622c)'; textColor = 'var(--accent, #e8622c)'
             }
 
             return (
@@ -512,7 +512,7 @@ export default function StudentTest() {
                 <span
                   className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
                   style={{
-                    background: isSelected && qs.status !== 'correct' ? '#e8622c' : '#f0e5d4',
+                    background: isSelected && qs.status !== 'correct' ? 'var(--accent, #e8622c)' : '#f0e5d4',
                     color:      isSelected && qs.status !== 'correct' ? '#fff'    : '#8a8072',
                   }}
                 >
@@ -628,7 +628,7 @@ export default function StudentTest() {
             onClick={handleSubmit}
             disabled={!canSubmit || submitting}
             className="flex-2 flex-grow-[2] py-3 rounded-xl text-sm font-bold text-white transition-all disabled:opacity-40"
-            style={{ background: '#e8622c' }}
+            style={{ background: 'var(--accent, #e8622c)' }}
           >
             {submitting ? t('lesson.submitting') : t('test.submit')}
           </button>
@@ -644,7 +644,7 @@ export default function StudentTest() {
             setCurIdx(next >= 0 ? next : curIdx + 1)
           }}
           className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all"
-          style={{ background: '#e8622c' }}
+          style={{ background: 'var(--accent, #e8622c)' }}
         >
           {t('lesson.next')}
         </button>

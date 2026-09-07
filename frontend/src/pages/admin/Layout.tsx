@@ -1,8 +1,10 @@
+import { useEffect } from 'react'
 import { NavLink, Outlet, Navigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
 import type { Locale } from '@/i18n/translations'
-import { LayoutDashboard, Users, BookOpen, Zap, ClipboardList, type LucideIcon } from 'lucide-react'
+import { LayoutDashboard, Users, BookOpen, Zap, ClipboardList, Target, Bell, type LucideIcon } from 'lucide-react'
+import { resetThemeAccent } from '@/lib/cosmeticColors'
 
 interface NavItem {
   to: string
@@ -15,6 +17,10 @@ export default function AdminLayout() {
   const { profile, loading, signOut } = useAuth()
   const { locale, setLocale, t } = useI18n()
 
+  // Admin always sees the default brand color — a student cosmetic theme
+  // from an earlier session in the same browser tab must never leak in.
+  useEffect(() => { resetThemeAccent() }, [])
+
   if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>
   if (!profile || profile.role !== 'admin') return <Navigate to="/login" replace />
 
@@ -24,6 +30,8 @@ export default function AdminLayout() {
     { to: '/admin/content',  label: t('admin.nav.content'),  icon: BookOpen },
     { to: '/admin/pod',      label: t('admin.nav.pod'),      icon: Zap },
     { to: '/admin/test-bank',label: t('admin.nav.testbank'), icon: ClipboardList },
+    { to: '/admin/missions', label: t('admin.nav.missions'), icon: Target },
+    { to: '/admin/notifications', label: t('admin.nav.notifications'), icon: Bell },
   ]
 
   const localeSwitcher = (

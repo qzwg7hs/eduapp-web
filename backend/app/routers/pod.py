@@ -10,6 +10,8 @@ from ..auth import get_current_user, require_admin, require_student
 from ..storage import upload_image, upload_file_bytes
 from ..pod_parser import parse_pod_docx
 from ..scoring import award_monthly_points
+from ..streaks import touch_streak
+from ..missions import update_mission_progress
 
 router = APIRouter(prefix="/pod", tags=["pod"])
 
@@ -99,6 +101,7 @@ def submit_pod_attempt(body: PodAttemptCreate, db: Session = Depends(get_db), cu
         answer=normalized,
     )
     db.add(attempt)
+    touch_streak(db, current_user)  # participation counts, not just a correct answer
 
     if pts > 0:
         # Atomic SQL-level increment — avoids losing an update when this
@@ -107,6 +110,7 @@ def submit_pod_attempt(body: PodAttemptCreate, db: Session = Depends(get_db), cu
             {"points": Profile.points + pts}, synchronize_session=False
         )
         award_monthly_points(db, current_user.id, pts)
+        update_mission_progress(db, current_user.id, "pod_correct_count", 1, "increment", today=_today_utc5())
 
     db.commit()
     db.refresh(attempt)

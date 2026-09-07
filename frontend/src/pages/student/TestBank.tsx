@@ -276,9 +276,9 @@ export default function StudentTestBank() {
               onClick={() => setCurIdx(i)}
               className="w-8 h-8 rounded-full text-xs font-bold flex items-center justify-center transition-all"
               style={{
-                background: isCur ? '#e8622c' : answered ? '#fdf1d6' : '#f0e5d4',
+                background: isCur ? 'var(--accent, #e8622c)' : answered ? '#fdf1d6' : '#f0e5d4',
                 color: isCur ? '#fff' : answered ? '#9a6f0a' : '#8a8072',
-                border: `2px solid ${isCur ? '#e8622c' : '#f0e5d4'}`,
+                border: `2px solid ${isCur ? 'var(--accent, #e8622c)' : '#f0e5d4'}`,
               }}
             >
               {i + 1}
@@ -308,13 +308,13 @@ export default function StudentTestBank() {
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium text-left transition-all"
                 style={{
                   background: selected ? '#fff5f0' : '#fff',
-                  borderColor: selected ? '#e8622c' : '#f0e5d4',
-                  color: selected ? '#e8622c' : '#374151',
+                  borderColor: selected ? 'var(--accent, #e8622c)' : '#f0e5d4',
+                  color: selected ? 'var(--accent, #e8622c)' : '#374151',
                 }}
               >
                 <span
                   className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                  style={{ background: selected ? '#e8622c' : '#f0e5d4', color: selected ? '#fff' : '#8a8072' }}
+                  style={{ background: selected ? 'var(--accent, #e8622c)' : '#f0e5d4', color: selected ? '#fff' : '#8a8072' }}
                 >
                   {['A', 'B', 'C', 'D', 'E', 'F'][i]}
                 </span>
@@ -346,13 +346,13 @@ export default function StudentTestBank() {
           ←
         </button>
         {curIdx < questions.length - 1 ? (
-          <button className="flex-[3] py-3 rounded-xl text-sm font-bold text-white transition-all" style={{ background: '#e8622c' }} onClick={() => setCurIdx(i => i + 1)}>
+          <button className="flex-[3] py-3 rounded-xl text-sm font-bold text-white transition-all" style={{ background: 'var(--accent, #e8622c)' }} onClick={() => setCurIdx(i => i + 1)}>
             →
           </button>
         ) : (
           <button
             className="flex-[3] py-3 rounded-xl text-sm font-bold text-white transition-all disabled:opacity-50"
-            style={{ background: '#e8622c' }}
+            style={{ background: 'var(--accent, #e8622c)' }}
             disabled={submitting}
             onClick={handleManualSubmit}
           >

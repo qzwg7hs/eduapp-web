@@ -34,6 +34,7 @@ export default function AdminDashboard() {
     { label: t('admin.action.add_topic'),     emoji: '📖', route: '/admin/content' },
     { label: t('admin.action.set_pod'),       emoji: '⚡', route: '/admin/pod' },
     { label: t('admin.action.view_students'), emoji: '👥', route: '/admin/students' },
+    { label: t('admin.nav.missions'),         emoji: '🎯', route: '/admin/missions' },
   ]
 
   return (

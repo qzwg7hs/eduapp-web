@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import api from '@/api/client'
 import { useAuth } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
-import { TopicInTree, ContinueProgress, ExamStatusOut, PodStatusOut } from '@/types'
+import { TopicInTree, ContinueProgress, ExamStatusOut, PodStatusOut, MissionOut } from '@/types'
 import { secondsUntilNextUtcHour, formatCountdown } from '@/lib/dailyTimer'
 
 const TESTBANK_RESET_UTC_HOUR = 19 // 00:00 UTC+5
@@ -11,7 +11,7 @@ const POD_RESET_UTC_HOUR = 19       // 00:00 UTC+5
 
 // Accent palette cycles per topic index
 const ACCENTS = [
-  { bg: '#fdeadd', color: '#e8622c' },
+  { bg: 'var(--accent-light, #fdeadd)', color: 'var(--accent, #e8622c)' },
   { bg: '#dff0f0', color: '#178f8f' },
   { bg: '#fdf1d6', color: '#d99a10' },
   { bg: '#eae6fb', color: '#6a56cf' },
@@ -30,6 +30,7 @@ export default function StudentHome() {
   const [podTaken, setPodTaken] = useState(false)
   const [testCountdown, setTestCountdown] = useState(0)
   const [podCountdown, setPodCountdown] = useState(0)
+  const [missions, setMissions] = useState<MissionOut[]>([])
 
   async function load() {
     setLoading(true)
@@ -40,6 +41,11 @@ export default function StudentHome() {
   }
 
   useEffect(() => { load() }, [locale])
+
+  useEffect(() => {
+    api.get<MissionOut[]>('/missions/current', { params: { language: locale } })
+      .then(r => setMissions(r.data)).catch(() => setMissions([]))
+  }, [locale])
 
   // The specific subtopic/test the student most recently worked on and hasn't
   // finished — a precise "pick up right where you left off" reference point.
@@ -108,12 +114,41 @@ export default function StudentHome() {
     <div className="max-w-2xl mx-auto px-4 py-6 pb-10">
 
       {/* Greeting row */}
-      <div className="mb-5">
-        <h1 className="font-display font-semibold text-2xl text-gray-900">
-          {t('home.hello')}, {profile?.name}! 👋
-        </h1>
-        <p className="text-sm text-muted mt-0.5">{t('home.subtitle')}</p>
+      <div className="mb-5 flex items-start justify-between gap-3">
+        <div>
+          <h1 className="font-display font-semibold text-2xl text-gray-900">
+            {t('home.hello')}, {profile?.name}! 👋
+          </h1>
+          <p className="text-sm text-muted mt-0.5">{t('home.subtitle')}</p>
+        </div>
+        {(profile?.current_streak ?? 0) > 0 && (
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl flex-shrink-0"
+               style={{ background: 'var(--accent-light, #fdeadd)', border: '1px solid #f5c9a9' }}>
+            <span className="text-lg">🔥</span>
+            <span className="font-display font-semibold text-sm text-primary">{profile?.current_streak}</span>
+          </div>
+        )}
       </div>
+
+      {/* Weekly missions — compact summary, full checklist lives on the profile page */}
+      {missions.length > 0 && (
+        <button
+          onClick={() => navigate('/student/profile')}
+          className="w-full text-left rounded-2xl p-4 mb-5 flex items-center justify-between transition-all active:scale-[0.99]"
+          style={{ background: '#fdf1d6', border: '1px solid #f5d980' }}
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🎯</span>
+            <div>
+              <p className="text-sm font-semibold text-gray-900">{t('home.missions_title')}</p>
+              <p className="text-xs text-muted">
+                {t('home.missions_progress', { done: missions.filter(m => m.completed).length, total: missions.length })}
+              </p>
+            </div>
+          </div>
+          <span className="text-xs font-semibold text-warning flex-shrink-0">{t('home.missions_view')} →</span>
+        </button>
+      )}
 
       {/* Pick up exactly where you left off — the single most recently worked-on,
           not-yet-finished subtopic test (if any) */}
@@ -169,7 +204,7 @@ export default function StudentHome() {
                   className="flex-shrink-0 w-56 text-left rounded-2xl p-4 transition-all active:scale-[0.98]"
                   style={{
                     background: 'linear-gradient(120deg, #e8622c 0%, #f2953f 100%)',
-                    boxShadow: '0 12px 24px -10px rgba(232,98,44,0.5)',
+                    boxShadow: '0 12px 24px -10px color-mix(in srgb, var(--accent, #e8622c) 50%, transparent)',
                   }}
                 >
                   <p className="font-display font-semibold text-white leading-snug line-clamp-2 mb-3">
@@ -265,7 +300,7 @@ export default function StudentHome() {
         className="w-full rounded-2xl p-5 mb-3 text-left flex items-center justify-between transition-all active:scale-[0.99]"
         style={{
           background: 'linear-gradient(120deg, #e8622c 0%, #f2953f 100%)',
-          boxShadow: '0 8px 24px -8px rgba(232,98,44,0.45)',
+          boxShadow: '0 8px 24px -8px color-mix(in srgb, var(--accent, #e8622c) 45%, transparent)',
         }}
       >
         <p className="font-display font-semibold text-lg text-white leading-tight">

@@ -21,6 +21,24 @@ class Profile(Base):
     is_active = Column(Boolean, default=True, server_default='true')
     created_at = Column(DateTime, default=datetime.utcnow)
 
+    # Streaks — touched incrementally on each qualifying action (see
+    # app/streaks.py), never bulk-reset on a schedule. current_streak is the
+    # student's own count of confirmed real value; longest_streak never goes
+    # down. freeze_week_key/freeze_used_this_week track the one missed-day
+    # grace per calendar week, lazily rolled over the same way MonthlyScore's
+    # period_key is — no scheduled job zeroes anything.
+    current_streak = Column(Integer, default=0, server_default='0')
+    longest_streak = Column(Integer, default=0, server_default='0')
+    last_streak_date = Column(Date, nullable=True)
+    freeze_week_key = Column(String, nullable=True)
+    freeze_used_this_week = Column(Boolean, default=False, server_default='false')
+
+    # Cosmetics — what's currently equipped. Selecting something new is
+    # gated by this period's MonthlyScore (see app/cosmetics.py), but once
+    # equipped it's kept even if a slower period follows — never revoked.
+    equipped_border_color = Column(String, nullable=True)
+    equipped_avatar_icon = Column(String, nullable=True)
+
 
 class Topic(Base):
     __tablename__ = "topics"
@@ -265,4 +283,68 @@ class DailyExam(Base):
     answers = Column(JSON, default=dict)             # {"<number>": {"selected_options":[...]}|{"open_answer_given": "..."}}
     results = Column(JSON, default=dict)             # {"<number>": {"is_correct": bool}}
     score = Column(Integer, default=0)
+
+
+class WeeklyMission(Base):
+    """An admin-created weekly mission instance. goal_type is one of a
+    small fixed set defined in app/missions.py (GOAL_TYPES) — the admin
+    only ever picks a type + a target number + a week, never free-form
+    logic or text, so there's no way to publish a broken/mistranslated
+    mission. Display text is generated from goal_type+target at read time."""
+    __tablename__ = "weekly_missions"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    goal_type = Column(String, nullable=False)
+    target = Column(Integer, nullable=False)
+    reward_points = Column(Integer, nullable=False, default=20)
+    week_start = Column(Date, nullable=False)
+    week_end = Column(Date, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class StudentMissionProgress(Base):
+    __tablename__ = "student_mission_progress"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    student_id = Column(UUID(as_uuid=True), ForeignKey("profiles.id", ondelete="CASCADE"), nullable=False)
+    mission_id = Column(UUID(as_uuid=True), ForeignKey("weekly_missions.id", ondelete="CASCADE"), nullable=False)
+    progress = Column(Integer, nullable=False, default=0)
+    completed_at = Column(DateTime, nullable=True)
+    points_awarded = Column(Boolean, nullable=False, default=False)
+
+    __table_args__ = (
+        UniqueConstraint("student_id", "mission_id", name="uq_mission_progress_student_mission"),
+    )
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class Notification(Base):
+    """A broadcast announcement shown to every student — release notes for
+    new features, in effect. Free-text (unlike WeeklyMission's fixed
+    catalog): these are authored one at a time by a human for a specific
+    ship event, not generated/repeated on a schedule, so there's no
+    class of "bad admin input" to design away here the way there was for
+    missions. One row reaches every student; per-student read state lives
+    in NotificationRead below rather than a boolean here."""
+    __tablename__ = "notifications"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    icon = Column(String, nullable=True)  # a single emoji shown next to the title
+    title_kz = Column(String, nullable=False)
+    title_ru = Column(String, nullable=False)
+    body_kz = Column(Text, nullable=False)
+    body_ru = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class NotificationRead(Base):
+    __tablename__ = "notification_reads"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    student_id = Column(UUID(as_uuid=True), ForeignKey("profiles.id", ondelete="CASCADE"), nullable=False)
+    notification_id = Column(UUID(as_uuid=True), ForeignKey("notifications.id", ondelete="CASCADE"), nullable=False)
+    read_at = Column(DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        UniqueConstraint("student_id", "notification_id", name="uq_notification_read_student_notification"),
+    )

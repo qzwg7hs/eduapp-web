@@ -1,11 +1,20 @@
+import { useEffect } from 'react'
 import { NavLink, Outlet, Navigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
 import type { Locale } from '@/i18n/translations'
+import Avatar from '@/components/Avatar'
+import NotificationBell from '@/components/NotificationBell'
+import { applyThemeAccent, resetThemeAccent } from '@/lib/cosmeticColors'
 
 export default function StudentLayout() {
   const { profile, loading } = useAuth()
   const { locale, setLocale, t } = useI18n()
+
+  useEffect(() => {
+    applyThemeAccent(profile?.equipped_border_color)
+    return () => resetThemeAccent()
+  }, [profile?.equipped_border_color])
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-bg">
@@ -35,7 +44,7 @@ export default function StudentLayout() {
           <div className="flex items-center gap-2.5 flex-shrink-0 mr-1">
             <div
               className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-display font-semibold text-lg leading-none flex-shrink-0"
-              style={{ background: '#e8622c', boxShadow: '0 4px 12px -4px rgba(232,98,44,0.5)' }}
+              style={{ background: 'var(--accent, #e8622c)', boxShadow: '0 4px 12px -4px color-mix(in srgb, var(--accent, #e8622c) 50%, transparent)' }}
             >
               ∑
             </div>
@@ -82,6 +91,19 @@ export default function StudentLayout() {
               <span className="font-display font-semibold text-sm text-warning">⭐ {profile.points}</span>
             </div>
 
+            {/* Streak chip — only once there's something to show */}
+            {profile.current_streak > 0 && (
+              <div
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-2xl"
+                style={{ background: 'var(--accent-light, #fdeadd)', border: '1px solid #f5c9a9' }}
+              >
+                <span className="font-display font-semibold text-sm text-primary">🔥 {profile.current_streak}</span>
+              </div>
+            )}
+
+            {/* Notifications */}
+            <NotificationBell />
+
             {/* Locale switcher */}
             <div className="flex rounded-lg overflow-hidden border border-border">
               {(['kz', 'ru'] as Locale[]).map(l => (
@@ -90,7 +112,7 @@ export default function StudentLayout() {
                   onClick={() => setLocale(l)}
                   className="px-2.5 py-1 text-xs font-bold transition-colors"
                   style={locale === l
-                    ? { background: '#e8622c', color: '#fff' }
+                    ? { background: 'var(--accent, #e8622c)', color: '#fff' }
                     : { background: '#fff', color: '#8a8072' }
                   }
                 >
@@ -100,12 +122,10 @@ export default function StudentLayout() {
             </div>
 
             {/* Avatar */}
-            <div
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg, #178f8f, #0f6b6b)', boxShadow: '0 2px 8px -2px rgba(23,143,143,0.4)' }}
-            >
-              {profile.name[0]}{profile.surname[0]}
-            </div>
+            <Avatar
+              name={profile.name} surname={profile.surname} size="sm" isMe
+              borderColor={profile.equipped_border_color} icon={profile.equipped_avatar_icon}
+            />
           </div>
 
         </div>
