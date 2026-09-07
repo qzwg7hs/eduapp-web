@@ -9,17 +9,19 @@ interface Stats {
   total_topics: number
   total_problems: number
   top_students: { name: string; surname: string; points: number }[]
+  monthly_period_label: string
+  top_students_monthly: { name: string; surname: string; points: number }[]
 }
 
 export default function AdminDashboard() {
   const { profile, signOut } = useAuth()
   const navigate = useNavigate()
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const [stats, setStats] = useState<Stats | null>(null)
 
   useEffect(() => {
-    api.get<Stats>('/progress/admin/overview').then(r => setStats(r.data))
-  }, [])
+    api.get<Stats>('/progress/admin/overview', { params: { language: locale } }).then(r => setStats(r.data))
+  }, [locale])
 
   const statCards = stats ? [
     { label: t('admin.stats.students'),   value: stats.total_students, icon: '👥', color: 'text-primary' },
@@ -65,6 +67,24 @@ export default function AdminDashboard() {
           </button>
         ))}
       </div>
+
+      {stats && stats.top_students_monthly.length > 0 && (
+        <>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-muted uppercase tracking-wider">{t('admin.top_students_monthly')}</h2>
+            <span className="text-xs text-muted">{stats.monthly_period_label}</span>
+          </div>
+          <div className="card divide-y divide-border p-0 overflow-hidden mb-8">
+            {stats.top_students_monthly.map((s, i) => (
+              <div key={i} className="flex items-center gap-3 px-4 py-3">
+                <span className="text-sm font-bold text-muted w-6">#{i + 1}</span>
+                <span className="flex-1 text-sm font-medium text-gray-900">{s.name} {s.surname}</span>
+                <span className="text-sm font-semibold text-warning">⭐ {s.points}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
       {stats && stats.top_students.length > 0 && (
         <>

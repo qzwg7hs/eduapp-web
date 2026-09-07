@@ -86,9 +86,13 @@ export const translations: Record<Locale, Record<string, string>> = {
     'ach.pod_first.desc': 'Решил ежедневное задание',
     // Leaderboard
     'lb.title': 'Рейтинг',
-    'lb.monthly': 'Очки обнуляются каждый месяц',
+    'lb.tab_monthly': 'За месяц',
+    'lb.tab_alltime': 'За всё время',
     'lb.your_rank': 'Твоё место',
     'lb.you': 'Ты',
+    'lb.not_in_top': 'Пока вне топ-10',
+    'lb.no_activity_yet': 'В этом месяце ещё никто не набрал очков — стань первым!',
+    'lb.empty': 'Пока никто не набрал очков',
     // POD (student)
     'pod.title': 'Задача дня',
     'pod.banner_subtitle': '1 сложная задача · открытый ответ',
@@ -277,7 +281,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'admin.action.add_topic': 'Добавить тему',
     'admin.action.set_pod': 'Задание дня',
     'admin.action.view_students': 'Все студенты',
-    'admin.top_students': 'Лучшие студенты',
+    'admin.top_students': 'Лучшие студенты (за всё время)',
+    'admin.top_students_monthly': 'Лучшие студенты (за месяц)',
     // Admin content
     'admin.content.title': 'Контент',
     'admin.content.n_topics': '{n} тем',
@@ -504,9 +509,13 @@ export const translations: Record<Locale, Record<string, string>> = {
     'ach.pod_first.desc': 'Күнделікті есепті шешті',
     // Leaderboard
     'lb.title': 'Рейтинг',
-    'lb.monthly': 'Ұпайлар әр айда нөлденеді',
+    'lb.tab_monthly': 'Ай бойынша',
+    'lb.tab_alltime': 'Барлық уақыт',
     'lb.your_rank': 'Сенің орның',
     'lb.you': 'Сен',
+    'lb.not_in_top': 'Әзірге топ-10-да жоқсың',
+    'lb.no_activity_yet': 'Бұл айда әлі ешкім ұпай жинаған жоқ — бірінші бол!',
+    'lb.empty': 'Әзірге ешкім ұпай жинаған жоқ',
     // POD (student)
     'pod.title': 'Күн есебі',
     'pod.banner_subtitle': '1 қиын есеп · ашық жауап',
@@ -695,7 +704,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'admin.action.add_topic': 'Тақырып қосу',
     'admin.action.set_pod': 'Күнделікті тапсырма',
     'admin.action.view_students': 'Студенттерді қарау',
-    'admin.top_students': 'Үздік студенттер',
+    'admin.top_students': 'Үздік студенттер (барлық уақыт)',
+    'admin.top_students_monthly': 'Үздік студенттер (ай бойынша)',
     // Admin content
     'admin.content.title': 'Контент',
     'admin.content.n_topics': '{n} тақырып',

@@ -306,6 +306,13 @@ class LeaderboardEntry(BaseModel):
     points: int
 
 
+class MonthlyLeaderboardOut(BaseModel):
+    period_key: str
+    period_label: str
+    entries: List[LeaderboardEntry]
+    my_points: int
+
+
 # ── Publish helpers ───────────────────────────────────────────────────────────
 
 class PublishRequest(BaseModel):

@@ -14,6 +14,7 @@ from ..schemas import (
 from ..auth import require_admin, require_student
 from ..storage import upload_file_bytes
 from ..test_parser import parse_test_docx
+from ..scoring import award_monthly_points
 from .problems import _check_mcq_correct, _check_open_correct
 
 router = APIRouter(prefix="/test-bank", tags=["test-bank"])
@@ -223,6 +224,7 @@ def submit_exam(body: ExamSubmitRequest, language: str = "kz", db: Session = Dep
         db.query(Profile).filter(Profile.id == current_user.id).update(
             {"points": Profile.points + score}, synchronize_session=False
         )
+        award_monthly_points(db, current_user.id, score)
 
     db.commit()
     db.refresh(exam)

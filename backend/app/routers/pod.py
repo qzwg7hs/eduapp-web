@@ -9,6 +9,7 @@ from ..schemas import PodAdminOut, PodStatusOut, PodAttemptCreate, PodAttemptOut
 from ..auth import get_current_user, require_admin, require_student
 from ..storage import upload_image, upload_file_bytes
 from ..pod_parser import parse_pod_docx
+from ..scoring import award_monthly_points
 
 router = APIRouter(prefix="/pod", tags=["pod"])
 
@@ -105,6 +106,7 @@ def submit_pod_attempt(body: PodAttemptCreate, db: Session = Depends(get_db), cu
         db.query(Profile).filter(Profile.id == current_user.id).update(
             {"points": Profile.points + pts}, synchronize_session=False
         )
+        award_monthly_points(db, current_user.id, pts)
 
     db.commit()
     db.refresh(attempt)

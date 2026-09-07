@@ -8,6 +8,7 @@ from ..schemas import ProblemCreate, ProblemUpdate, ProblemOut, AttemptCreate, A
 from ..auth import get_current_user, require_admin, require_student
 from ..storage import upload_file_bytes
 from ..test_parser import parse_test_docx
+from ..scoring import award_monthly_points
 
 router = APIRouter(prefix="/problems", tags=["problems"])
 
@@ -386,6 +387,7 @@ def submit_attempt(body: AttemptCreate, db: Session = Depends(get_db), current_u
         db.query(Profile).filter(Profile.id == current_user.id).update(
             {"points": Profile.points + pts}, synchronize_session=False
         )
+        award_monthly_points(db, current_user.id, pts)
 
     db.commit()
     db.refresh(attempt)

@@ -221,11 +221,22 @@ def my_stats(db: Session = Depends(get_db), current_user: Profile = Depends(requ
 
 
 @router.get("/admin/overview")
-def admin_overview(db: Session = Depends(get_db)):
+def admin_overview(language: str = "kz", db: Session = Depends(get_db)):
     from ..auth import require_admin
-    from ..models import Topic, Problem
+    from ..models import Topic, Problem, MonthlyScore
+    from ..scoring import current_period_key, period_label
 
     students = db.query(Profile).filter(Profile.role == "student").all()
+
+    period = current_period_key()
+    monthly_rows = (
+        db.query(Profile, MonthlyScore.points)
+        .join(MonthlyScore, (MonthlyScore.student_id == Profile.id) & (MonthlyScore.period_key == period))
+        .filter(Profile.role == "student", MonthlyScore.points > 0)
+        .order_by(MonthlyScore.points.desc())
+        .limit(5)
+        .all()
+    )
 
     return {
         "total_students": len(students),
@@ -234,5 +245,10 @@ def admin_overview(db: Session = Depends(get_db)):
         "top_students": [
             {"name": s.name, "surname": s.surname, "points": s.points}
             for s in sorted(students, key=lambda x: x.points, reverse=True)[:5]
+        ],
+        "monthly_period_label": period_label(period, language),
+        "top_students_monthly": [
+            {"name": s.name, "surname": s.surname, "points": pts}
+            for s, pts in monthly_rows
         ],
     }

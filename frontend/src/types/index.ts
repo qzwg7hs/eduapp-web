@@ -146,6 +146,13 @@ export interface LeaderboardEntry {
   points: number;
 }
 
+export interface MonthlyLeaderboardOut {
+  period_key: string;
+  period_label: string;
+  entries: LeaderboardEntry[];
+  my_points: number;
+}
+
 export interface ContinueProgress {
   lesson_id: string;
   lesson_title: string;

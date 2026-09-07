@@ -3,6 +3,7 @@ import api from '@/api/client'
 import { useAuth } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
 import ScoreTrendChart from '@/components/ScoreTrendChart'
+import { MonthlyLeaderboardOut } from '@/types'
 
 interface ExamHistoryPoint { exam_date: string; score: number; total: number }
 
@@ -33,15 +34,22 @@ function formatPoints(pts: number) {
 
 export default function StudentProfile() {
   const { profile, signOut } = useAuth()
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const [stats, setStats] = useState({ total_attempts: 0, correct_attempts: 0, problems_solved: 0, pod_solved: 0, lessons_completed: 0 })
   const [loading, setLoading] = useState(true)
   const [examHistory, setExamHistory] = useState<ExamHistoryPoint[]>([])
+  const [monthly, setMonthly] = useState<{ label: string; points: number } | null>(null)
 
   useEffect(() => {
     api.get('/progress/stats').then(r => { setStats(r.data); setLoading(false) })
     api.get<ExamHistoryPoint[]>('/test-bank/history').then(r => setExamHistory(r.data)).catch(() => setExamHistory([]))
   }, [])
+
+  useEffect(() => {
+    api.get<MonthlyLeaderboardOut>('/leaderboard/monthly', { params: { language: locale } })
+      .then(r => setMonthly({ label: r.data.period_label, points: r.data.my_points }))
+      .catch(() => setMonthly(null))
+  }, [locale])
 
   if (!profile || loading) return (
     <div className="flex justify-center items-center h-64">
@@ -77,7 +85,12 @@ export default function StudentProfile() {
       {/* Points */}
       <div className="card text-center" style={{ boxShadow: '0 4px 16px -8px rgba(44,36,24,0.1)' }}>
         <p className="font-display font-semibold text-5xl text-gray-900 mb-0.5">⭐ {formatPoints(profile.points)}</p>
-        <p className="text-sm text-muted mb-3">{t('profile.total_points')}</p>
+        <p className="text-sm text-muted mb-2">{t('profile.total_points')}</p>
+        {monthly && (
+          <p className="inline-block mb-3 px-3 py-1 rounded-full text-xs font-semibold" style={{ background: '#fdeadd', color: '#e8622c' }}>
+            {monthly.label}: ⭐ {monthly.points}
+          </p>
+        )}
         <div className="flex justify-between text-xs text-muted mb-1.5">
           <span>{t('profile.next_goal', { n: nextGoal })}</span>
           <span>{profile.points} / {nextGoal}</span>

@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, Integer, Boolean, DateTime, Date, JSON, ForeignKey, Text
+from sqlalchemy import Column, String, Integer, Boolean, DateTime, Date, JSON, ForeignKey, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from .database import Base
@@ -201,6 +201,28 @@ class SystemSettings(Base):
     key = Column(String, primary_key=True)
     value = Column(String, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow)
+
+
+class MonthlyScore(Base):
+    """A student's points earned within one scoring period, kept entirely
+    separate from Profile.points (the lifetime total, which never resets).
+    One row per (student, period) — a new period gets a fresh row starting
+    at 0 rather than any existing row ever being zeroed out, so past
+    periods stay permanently on the record instead of being destructively
+    overwritten (see app/scoring.py for how period_key is derived — periods
+    are calendar months, except the first period which deliberately spans
+    both August and September 2026 combined)."""
+    __tablename__ = "monthly_scores"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    student_id = Column(UUID(as_uuid=True), ForeignKey("profiles.id", ondelete="CASCADE"), nullable=False)
+    period_key = Column(String, nullable=False)   # e.g. "2026-08_09", "2026-10", "2026-11", ...
+    points = Column(Integer, default=0)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        UniqueConstraint("student_id", "period_key", name="uq_monthly_score_student_period"),
+    )
 
 
 class TestBankProblem(Base):
