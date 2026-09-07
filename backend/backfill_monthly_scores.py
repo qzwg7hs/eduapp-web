@@ -9,11 +9,18 @@ app/scoring.py's award_monthly_points) — this script only covers the
 onward needs no backfill since tracking is live from day one of each of
 those periods.
 
-Idempotent: recomputes the full August+September sum from source history
-every time and sets (not adds to) the row, so re-running is always safe
-and just re-syncs to the same correct value — it won't double-count if run
-twice, and it won't stomp on live points earned via the app in the same
-window since those are already included in the same history sum.
+Idempotent, and safe to re-run: recomputes the full August+September sum
+from source history and raises the row to at least that value (never
+lowers it). It only ever raises rather than sets outright because the
+ledger this recomputes from (ProblemAttempt/PodAttempt/DailyExam) isn't
+actually a complete record of everything profile.points reflects — a
+later content edit (e.g. deleting+replacing a problem to make it harder)
+cascades to delete that problem's ProblemAttempt rows too, silently
+erasing ledger evidence for points that were legitimately earned and are
+still correctly included in profile.points. When that happened for 14
+students, this script's own recompute would otherwise have UNDONE the
+manual gap-correction applied on top (see conversation/commit history) —
+max(existing, recomputed) makes that impossible.
 
 Run against local, verify, then production.
 """
@@ -54,7 +61,7 @@ for s in students:
         MonthlyScore.student_id == s.id, MonthlyScore.period_key == PERIOD
     ).first()
     if existing:
-        if existing.points != total:
+        if total > existing.points:
             existing.points = total
             seeded += 1
     elif total > 0:
