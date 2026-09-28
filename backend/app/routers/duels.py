@@ -273,7 +273,7 @@ def list_opponents(q: str = "", db: Session = Depends(get_db), current_user: Pro
     if q.strip():
         like = f"%{q.strip()}%"
         query = query.filter(or_(Profile.name.ilike(like), Profile.surname.ilike(like), Profile.unique_id.ilike(like)))
-    return query.order_by(Profile.surname).limit(30).all()
+    return query.order_by(Profile.surname).all()
 
 
 @router.get("/can-challenge")
