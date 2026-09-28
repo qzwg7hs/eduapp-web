@@ -78,6 +78,7 @@ def create():
             unique_id=username,
             role="student",
             points=points,
+            is_decorative=True,  # excludes this account from Duel's opponent picker (routers/duels.py) — it can never log in to respond
         )
         db.add(student)
         db.flush()

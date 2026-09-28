@@ -29,6 +29,7 @@ class ProfileOut(BaseModel):
     longest_streak: int = 0
     equipped_border_color: Optional[str] = None
     equipped_avatar_icon: Optional[str] = None
+    duel_disabled: bool = False
 
     class Config:
         from_attributes = True
@@ -461,3 +462,44 @@ class ExamStatusOut(BaseModel):
     score: Optional[int] = None
     total: Optional[int] = None
     terminated_early: Optional[bool] = None
+
+
+# ── Duel ──────────────────────────────────────────────────────────────────────
+
+class DuelChallengeCreate(BaseModel):
+    opponent_id: UUID
+
+class DuelOpponentOut(BaseModel):
+    id: UUID
+    name: str
+    surname: str
+    unique_id: Optional[str] = None
+    equipped_border_color: Optional[str] = None
+    equipped_avatar_icon: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+class DuelListItemOut(BaseModel):
+    id: UUID
+    role: str                            # "challenger" | "opponent" — relative to the viewer
+    opponent: DuelOpponentOut
+    status: str                          # "pending" | "declined" | "expired" | "active" | "completed"
+    created_at: datetime
+    expires_at: datetime
+    my_submitted: bool
+    opponent_submitted: bool
+    my_score: Optional[int] = None
+    opponent_score: Optional[int] = None
+    winner: Optional[str] = None         # "me" | "opponent" | "tie" — only once completed
+    my_points_earned: Optional[int] = None
+    opponent_points_earned: Optional[int] = None
+
+class DuelDetailOut(DuelListItemOut):
+    duration_seconds: int = 360
+    total: int
+    my_state: str                        # "not_started" | "in_progress" | "submitted"
+    my_started_at: Optional[datetime] = None
+    questions: Optional[List[ExamQuestionOut]] = None
+    my_results: Optional[List[ExamResultRow]] = None
+    opponent_results: Optional[List[ExamResultRow]] = None   # only once status == "completed"

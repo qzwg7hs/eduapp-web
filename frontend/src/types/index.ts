@@ -14,6 +14,7 @@ export interface Profile {
   longest_streak: number;
   equipped_border_color: string | null;
   equipped_avatar_icon: string | null;
+  duel_disabled: boolean;
 }
 
 export type ContentLanguage = 'kz' | 'ru';
@@ -239,6 +240,44 @@ export interface ExamStatusOut {
   score?: number | null;
   total?: number | null;
   terminated_early?: boolean | null;
+}
+
+// Duel
+export interface DuelOpponent {
+  id: string;
+  name: string;
+  surname: string;
+  unique_id: string | null;
+  equipped_border_color?: string | null;
+  equipped_avatar_icon?: string | null;
+}
+
+export type DuelStatus = 'pending' | 'declined' | 'expired' | 'active' | 'completed';
+
+export interface DuelListItem {
+  id: string;
+  role: 'challenger' | 'opponent';
+  opponent: DuelOpponent;
+  status: DuelStatus;
+  created_at: string;
+  expires_at: string;
+  my_submitted: boolean;
+  opponent_submitted: boolean;
+  my_score?: number | null;
+  opponent_score?: number | null;
+  winner?: 'me' | 'opponent' | 'tie' | null;
+  my_points_earned?: number | null;
+  opponent_points_earned?: number | null;
+}
+
+export interface DuelDetail extends DuelListItem {
+  duration_seconds: number;
+  total: number;
+  my_state: ExamStatus;
+  my_started_at?: string | null;
+  questions?: ExamQuestion[] | null;
+  my_results?: ExamResultRow[] | null;
+  opponent_results?: ExamResultRow[] | null;
 }
 
 // Notifications

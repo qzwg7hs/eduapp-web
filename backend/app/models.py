@@ -39,6 +39,23 @@ class Profile(Base):
     equipped_border_color = Column(String, nullable=True)
     equipped_avatar_icon = Column(String, nullable=True)
 
+    # Flags the ~20 seeded "fake student" leaderboard-filler accounts (see
+    # backend/manage_fake_students.py) — and, more generally, any account
+    # that shouldn't be selectable as a Duel opponent (test/QA accounts,
+    # etc.) — as non-interactive for that purpose. Doesn't stop the flagged
+    # account from acting itself; a test account still needs to be able to
+    # duel another test account, it just shouldn't show up in a REAL
+    # student's opponent picker.
+    is_decorative = Column(Boolean, default=False, server_default='false')
+
+    # A per-student opt-out of Duel entirely — can't challenge, be
+    # challenged, or otherwise touch any duel endpoint (see
+    # require_duel_access in routers/duels.py). Unlike is_decorative, this
+    # blocks the account's OWN actions, not just whether others can select
+    # it. Off by default; set per-student as needed (currently just via a
+    # direct DB update, no admin UI toggle yet).
+    duel_disabled = Column(Boolean, default=False, server_default='false')
+
 
 class Topic(Base):
     __tablename__ = "topics"
@@ -283,6 +300,70 @@ class DailyExam(Base):
     answers = Column(JSON, default=dict)             # {"<number>": {"selected_options":[...]}|{"open_answer_given": "..."}}
     results = Column(JSON, default=dict)             # {"<number>": {"is_correct": bool}}
     score = Column(Integer, default=0)
+
+
+class Duel(Base):
+    """An asynchronous 1v1 challenge over a small shared set of Test Bank
+    questions. Exactly two participants for the row's whole life, so state
+    lives as challenger_*/opponent_* column pairs on one row rather than a
+    child table — same single-row-per-attempt style as DailyExam, just
+    duplicated per side instead of per student.
+
+    question_numbers is picked once, at accept time (see routers/duels.py),
+    so both sides answer the identical set — like DailyExam.question_numbers,
+    fixed at creation. Each side resolves those numbers to TestBankProblem
+    rows in their own display language independently, so a kz-preferring and
+    ru-preferring student can duel each other without a language mismatch.
+
+    The whole duel has one 24-hour window measured from created_at (not from
+    accepted_at) — see _expire_if_overdue in routers/duels.py. There is no
+    scheduled cleanup job; an overdue pending/active duel is flipped to
+    'expired' lazily, the moment any endpoint next touches it — same style
+    as MonthlyScore's period_key and the streak freeze's week_key.
+
+    status: 'pending' -> 'declined' | 'expired' | 'active' -> 'completed' | 'expired'
+    """
+    __tablename__ = "duels"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    challenger_id = Column(UUID(as_uuid=True), ForeignKey("profiles.id", ondelete="CASCADE"), nullable=False)
+    opponent_id = Column(UUID(as_uuid=True), ForeignKey("profiles.id", ondelete="CASCADE"), nullable=False)
+    status = Column(String, nullable=False, default="pending")
+    created_at = Column(DateTime, default=datetime.utcnow)  # anchors the 24h window for the WHOLE duel
+    accepted_at = Column(DateTime, nullable=True)           # null until accept (declining never sets it) —
+                                                              # used to tell whether a completed duel resolved
+                                                              # "today" for the daily cap (see _completed_today
+                                                              # in routers/duels.py); a still-open pending
+                                                              # challenge never counts against that cap at all,
+                                                              # only an accepted-and-resolved one does
+    language = Column(String, nullable=False, default="kz")  # language the question pool was drawn from at accept
+
+    # Shared, fixed at accept time — same numbers for both sides
+    question_numbers = Column(JSON, default=list)
+
+    # Per-side sitting: independent timers, independently started
+    challenger_started_at = Column(DateTime, nullable=True)
+    opponent_started_at = Column(DateTime, nullable=True)
+    challenger_submitted_at = Column(DateTime, nullable=True)
+    opponent_submitted_at = Column(DateTime, nullable=True)
+    challenger_terminated_early = Column(Boolean, default=False, server_default='false')
+    opponent_terminated_early = Column(Boolean, default=False, server_default='false')
+    challenger_answers = Column(JSON, default=dict)   # same shape as DailyExam.answers
+    opponent_answers = Column(JSON, default=dict)
+    challenger_results = Column(JSON, default=dict)   # same shape as DailyExam.results
+    opponent_results = Column(JSON, default=dict)
+    challenger_score = Column(Integer, default=0)
+    opponent_score = Column(Integer, default=0)
+
+    # Completion — set exactly once, at the moment BOTH sides have submitted
+    # (see _finalize_if_both_done). Points are stored, not re-derived from
+    # current constants at read time, so a later tuning of POINTS_PER_CORRECT/
+    # WINNER_BONUS never rewrites a historical duel's payout — same
+    # immutable-past-period principle as MonthlyScore rows.
+    winner_id = Column(UUID(as_uuid=True), nullable=True)   # null = tie, or not yet completed
+    points_awarded = Column(Boolean, default=False, server_default='false')  # idempotency guard
+    challenger_points_awarded = Column(Integer, default=0)
+    opponent_points_awarded = Column(Integer, default=0)
 
 
 class WeeklyMission(Base):

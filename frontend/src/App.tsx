@@ -12,6 +12,8 @@ import StudentProfile from '@/pages/student/Profile'
 import StudentTopics from '@/pages/student/Topics'
 import StudentTest   from '@/pages/student/Test'
 import StudentTestBank from '@/pages/student/TestBank'
+import StudentDuels from '@/pages/student/Duels'
+import StudentDuel from '@/pages/student/Duel'
 import AdminLayout from '@/pages/admin/Layout'
 import AdminDashboard from '@/pages/admin/Dashboard'
 import AdminStudents from '@/pages/admin/Students'
@@ -46,6 +48,8 @@ export default function App() {
             <Route path="topics"    element={<StudentTopics />} />
             <Route path="test/:id" element={<StudentTest />} />
             <Route path="exam" element={<StudentTestBank />} />
+            <Route path="duels" element={<StudentDuels />} />
+            <Route path="duel/:id" element={<StudentDuel />} />
             <Route path="profile" element={<StudentProfile />} />
           </Route>
 

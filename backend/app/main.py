@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import inspect, text
 
 from .database import engine, Base, settings
-from .routers import auth, topics, problems, pod, students, leaderboard, progress, test_bank, missions, cosmetics, notifications
+from .routers import auth, topics, problems, pod, students, leaderboard, progress, test_bank, missions, cosmetics, notifications, duels
 # Note: the "reports" (problem complaints) router is deliberately not mounted —
 # the feature was removed from the product surface. app/routers/reports.py and
 # the ProblemReport model/table are left in place, unused, in case it's revived.
@@ -108,6 +108,31 @@ def _run_migrations():
             with engine.begin() as conn:
                 conn.execute(text(f"ALTER TABLE profiles ADD COLUMN {col} {ddl}"))
 
+    # is_decorative: flags the ~20 seeded "fake student" leaderboard-filler
+    # accounts (see manage_fake_students.py) as non-interactive, so Duel's
+    # opponent picker (routers/duels.py) can exclude them — a challenge to
+    # one would just always expire uselessly, since they can never log in.
+    profile_cols2 = {c['name'] for c in insp.get_columns('profiles')}
+    if 'is_decorative' not in profile_cols2:
+        with engine.begin() as conn:
+            conn.execute(text("ALTER TABLE profiles ADD COLUMN is_decorative BOOLEAN DEFAULT false"))
+        try:
+            from manage_fake_students import FAKE_USERNAMES
+            with engine.begin() as conn:
+                conn.execute(
+                    text("UPDATE profiles SET is_decorative = true WHERE username = ANY(:usernames)"),
+                    {"usernames": list(FAKE_USERNAMES)},
+                )
+        except ImportError:
+            pass  # best-effort backfill only — column default (false) is still safe either way
+
+    # duel_disabled: per-student opt-out of the Duel feature entirely (see
+    # routers/duels.py's require_duel_access). Off for everyone by default.
+    profile_cols3 = {c['name'] for c in insp.get_columns('profiles')}
+    if 'duel_disabled' not in profile_cols3:
+        with engine.begin() as conn:
+            conn.execute(text("ALTER TABLE profiles ADD COLUMN duel_disabled BOOLEAN DEFAULT false"))
+
     # Fix problems stuck as is_draft=True inside published lessons.
     # These were created by bulk upload before the is_draft=False fix was applied.
     # The publish cascade was skipping them; this repairs existing data.
@@ -144,6 +169,7 @@ app.include_router(test_bank.router, prefix="/api")
 app.include_router(missions.router, prefix="/api")
 app.include_router(cosmetics.router, prefix="/api")
 app.include_router(notifications.router, prefix="/api")
+app.include_router(duels.router, prefix="/api")
 
 
 @app.get("/api/health")

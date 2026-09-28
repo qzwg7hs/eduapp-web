@@ -5,6 +5,7 @@ from ..database import get_db
 from ..models import Profile
 from ..schemas import LoginRequest, TokenResponse, ProfileOut
 from ..auth import verify_password, create_access_token, get_current_user
+from ..streaks import effective_streak
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -31,4 +32,10 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
 
 @router.get("/me", response_model=ProfileOut)
 def me(current_user: Profile = Depends(get_current_user)):
-    return current_user
+    # current_user.current_streak is a write-time cache (see streaks.py) —
+    # substitute the read-time effective value here so a student who's gone
+    # quiet actually sees 0, instead of the last value the DB happened to
+    # have written before they stopped. Doesn't touch the DB.
+    out = ProfileOut.model_validate(current_user)
+    out.current_streak = effective_streak(current_user)
+    return out

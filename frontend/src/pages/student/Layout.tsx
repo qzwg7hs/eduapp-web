@@ -5,6 +5,7 @@ import { useI18n } from '@/contexts/I18nContext'
 import type { Locale } from '@/i18n/translations'
 import Avatar from '@/components/Avatar'
 import NotificationBell from '@/components/NotificationBell'
+import DuelBadge from '@/components/DuelBadge'
 import { applyThemeAccent, resetThemeAccent } from '@/lib/cosmeticColors'
 
 export default function StudentLayout() {
@@ -28,6 +29,10 @@ export default function StudentLayout() {
     { to: '/student/topics',      label: t('nav.topics')  },
     { to: '/student/pod',         label: t('nav.daily')  },
     { to: '/student/exam',        label: t('nav.testbank')  },
+    // Duel is a per-student opt-out (see Profile.duel_disabled) — omit the
+    // tab entirely for a student it's disabled for, rather than showing it
+    // disabled/greyed, so there's no trace of the feature for them at all.
+    ...(profile.duel_disabled ? [] : [{ to: '/student/duels', label: t('nav.duels') }]),
     { to: '/student/leaderboard', label: t('nav.ranks')  },
     { to: '/student/profile',     label: t('nav.profile') },
   ]
@@ -69,6 +74,7 @@ export default function StudentLayout() {
                 {({ isActive }) => (
                   <>
                     {item.label}
+                    {item.to === '/student/duels' && <DuelBadge />}
                     {isActive && (
                       <span
                         className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary"

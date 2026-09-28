@@ -35,6 +35,46 @@ def _week_key(d: date) -> str:
     return f"{iso[0]}-W{iso[1]:02d}"
 
 
+def effective_streak(student: Profile, today: date | None = None) -> int:
+    """The streak as it should be DISPLAYED right now — as opposed to
+    student.current_streak, which is a write-time cache only ever updated
+    inside touch_streak() (i.e. the moment the student does a qualifying
+    activity). Without this, a student who stops participating keeps seeing
+    their old streak number indefinitely, since nothing ever touches the row
+    again to notice it broke.
+
+    Read-only — never mutates or commits anything, so touch_streak() still
+    sees the true last_streak_date/freeze state on the student's next real
+    activity (in particular, the freeze logic there needs the actual stored
+    values, not this display-time approximation, to work correctly).
+
+    - No activity ever: 0.
+    - Last activity was today or yesterday: still fully alive, show the
+      stored streak (yesterday isn't broken yet — there's still time today).
+    - Exactly one full day missed (gap of 2) AND this week's freeze is still
+      available: still shown as alive — matches touch_streak's own "the
+      freeze saves it" rule, so the number doesn't flicker to 0 and back the
+      moment they do come back today.
+    - Anything past that (freeze already used, or more than one day missed):
+      broken — 0, regardless of what the stored column still says.
+    """
+    today = today or _today_utc5()
+    if not student.last_streak_date:
+        return 0
+
+    gap = (today - student.last_streak_date).days
+    if gap <= 1:
+        return student.current_streak or 0
+
+    if gap == 2:
+        week = _week_key(today)
+        freeze_available = student.freeze_week_key != week or not student.freeze_used_this_week
+        if freeze_available:
+            return student.current_streak or 0
+
+    return 0
+
+
 def touch_streak(db: Session, student: Profile, today: date | None = None) -> None:
     """Record that `student` did a qualifying activity today. Safe to call
     multiple times in the same day (a student doing both POD and the daily
