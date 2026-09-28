@@ -5,9 +5,18 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
 import { TopicInTree, ContinueProgress, ExamStatusOut, PodStatusOut, MissionOut } from '@/types'
 import { secondsUntilNextUtcHour, formatCountdown } from '@/lib/dailyTimer'
+import { Swords, X } from 'lucide-react'
 
 const TESTBANK_RESET_UTC_HOUR = 19 // 00:00 UTC+5
 const POD_RESET_UTC_HOUR = 19       // 00:00 UTC+5
+
+// One-time "new feature" callout — dismissible per browser (localStorage),
+// not tied to any real read/seen state server-side. Meant to be pulled out
+// of the code entirely once the Duel launch has aged out; not a permanent
+// fixture. Bump the key (e.g. _v2) if a similar announcement is ever needed
+// for a future feature, so it shows again even for students who dismissed
+// this one.
+const DUEL_ANNOUNCEMENT_KEY = 'eduapp_duel_announcement_dismissed'
 
 // Accent palette cycles per topic index
 const ACCENTS = [
@@ -31,6 +40,20 @@ export default function StudentHome() {
   const [testCountdown, setTestCountdown] = useState(0)
   const [podCountdown, setPodCountdown] = useState(0)
   const [missions, setMissions] = useState<MissionOut[]>([])
+  const [showDuelAnnouncement, setShowDuelAnnouncement] = useState(false)
+
+  useEffect(() => {
+    try {
+      setShowDuelAnnouncement(localStorage.getItem(DUEL_ANNOUNCEMENT_KEY) !== 'true')
+    } catch {
+      setShowDuelAnnouncement(true) // storage blocked/unavailable — default to showing it
+    }
+  }, [])
+
+  function dismissDuelAnnouncement() {
+    setShowDuelAnnouncement(false)
+    try { localStorage.setItem(DUEL_ANNOUNCEMENT_KEY, 'true') } catch { /* per-viewer convenience only */ }
+  }
 
   async function load() {
     setLoading(true)
@@ -129,6 +152,44 @@ export default function StudentHome() {
           </div>
         )}
       </div>
+
+      {/* New-feature callout — dismissible, see DUEL_ANNOUNCEMENT_KEY above.
+          Hidden entirely for a student with duel_disabled, same as the nav
+          tab itself — no point announcing a feature they can't reach. */}
+      {showDuelAnnouncement && !profile?.duel_disabled && (
+        <div
+          className="relative w-full rounded-2xl p-5 mb-5 overflow-hidden"
+          style={{
+            background: 'linear-gradient(120deg, #6a56cf 0%, #8b7fc7 100%)',
+            boxShadow: '0 12px 28px -10px rgba(106,86,207,0.5)',
+          }}
+        >
+          <button
+            onClick={dismissDuelAnnouncement}
+            aria-label={t('home.duel_announcement_dismiss')}
+            className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+          <button onClick={() => navigate('/student/duels')} className="w-full text-left active:scale-[0.99] transition-all">
+            <div className="flex items-center gap-2 mb-2 pr-8">
+              <Swords className="w-5 h-5 text-white flex-shrink-0" />
+              <span className="text-xs font-bold uppercase tracking-widest text-white/80">
+                {t('home.duel_announcement_eyebrow')}
+              </span>
+            </div>
+            <p className="font-display font-semibold text-lg text-white leading-snug mb-1.5 pr-8">
+              {t('home.duel_announcement_title')}
+            </p>
+            <p className="text-sm text-white/90 leading-relaxed mb-3">
+              {t('home.duel_announcement_body')}
+            </p>
+            <span className="inline-block bg-white text-[#6a56cf] font-display font-semibold text-sm px-4 py-1.5 rounded-xl">
+              {t('home.duel_announcement_cta')}
+            </span>
+          </button>
+        </div>
+      )}
 
       {/* Weekly missions — compact summary, full checklist lives on the profile page */}
       {missions.length > 0 && (

@@ -13,6 +13,11 @@ export const translations: Record<Locale, Record<string, string>> = {
     // Home (student)
     'home.hello': 'Привет',
     'home.subtitle': 'Продолжай в том же духе!',
+    'home.duel_announcement_eyebrow': 'Новинка',
+    'home.duel_announcement_title': 'Новая функция: Дуэль! ⚔️',
+    'home.duel_announcement_body': 'Теперь можно вызвать одноклассника на дуэль! Подробности — в уведомлениях 🔔, а начать дуэль можно во вкладке «Дуэль». Удачи!',
+    'home.duel_announcement_cta': 'Перейти к дуэли →',
+    'home.duel_announcement_dismiss': 'Закрыть',
     'home.missions_title': 'Задания недели',
     'home.missions_progress': 'Выполнено {done} из {total}',
     'home.missions_view': 'Смотреть',
@@ -532,6 +537,11 @@ export const translations: Record<Locale, Record<string, string>> = {
     // Home (student)
     'home.hello': 'Сәлем',
     'home.subtitle': 'Жалғастыра бер!',
+    'home.duel_announcement_eyebrow': 'Жаңалық',
+    'home.duel_announcement_title': 'Жаңа мүмкіндік: Дуэль! ⚔️',
+    'home.duel_announcement_body': 'Енді сыныптасыңызды дуэльге шақыра аласыз! Толық ақпаратты хабарландырулардан 🔔 оқи аласыз, ал дуэльді «Дуэль» бөлімінен бастай аласыз. Сәттілік!',
+    'home.duel_announcement_cta': 'Дуэльге өту →',
+    'home.duel_announcement_dismiss': 'Жабу',
     'home.missions_title': 'Апта тапсырмалары',
     'home.missions_progress': '{total} тапсырмадан {done} орындалды',
     'home.missions_view': 'Қарау',
