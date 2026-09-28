@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from ..database import get_db
@@ -43,15 +44,17 @@ def get_leaderboard(db: Session = Depends(get_db), _=Depends(get_current_user)):
 def get_monthly_leaderboard(language: str = "kz", db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user)):
     """Current-period leaderboard, ranked by MonthlyScore.points for the
     active period only — a separate ledger from the all-time total (see
-    app/scoring.py). A student with no activity yet this period simply has
-    no MonthlyScore row, which reads as 0 here rather than needing one."""
+    app/scoring.py). Every active student is listed, including those with
+    no MonthlyScore row yet (no activity this period reads as 0, same as
+    the all-time list includes students at 0 lifetime points) — a fresh
+    account isn't hidden just for not having done anything yet."""
     period = current_period_key()
 
     rows = (
-        db.query(Profile, MonthlyScore.points)
-        .join(MonthlyScore, (MonthlyScore.student_id == Profile.id) & (MonthlyScore.period_key == period))
-        .filter(Profile.role == "student", Profile.is_active == True, MonthlyScore.points > 0)
-        .order_by(MonthlyScore.points.desc())
+        db.query(Profile, func.coalesce(MonthlyScore.points, 0))
+        .outerjoin(MonthlyScore, (MonthlyScore.student_id == Profile.id) & (MonthlyScore.period_key == period))
+        .filter(Profile.role == "student", Profile.is_active == True)
+        .order_by(func.coalesce(MonthlyScore.points, 0).desc())
         .all()
     )
     entries = _rank_entries([(s, pts) for s, pts in rows])
