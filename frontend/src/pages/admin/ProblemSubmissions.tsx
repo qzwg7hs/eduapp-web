@@ -4,11 +4,12 @@ import { useI18n } from '@/contexts/I18nContext'
 import { ProblemSubmissionAdmin } from '@/types'
 import LessonRenderer from '@/components/LessonRenderer'
 import RawBlockView from '@/components/RawBlockView'
+import DateInputDDMMYYYY from '@/components/DateInputDDMMYYYY'
 import { formatUtc5DateTime, parseServerUtc, utc5DayStartUtcMs, utc5DayEndUtcMs } from '@/lib/dailyTimer'
 import { Lightbulb, Trash2, ChevronDown, ChevronUp, Download, CheckSquare, Square } from 'lucide-react'
 
 export default function AdminProblemSubmissions() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const [items, setItems] = useState<ProblemSubmissionAdmin[]>([])
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState<string | null>(null)
@@ -129,10 +130,24 @@ export default function AdminProblemSubmissions() {
               <span className="text-xs text-muted ml-auto">{t('admin.submissions.selected_count', { n: selected.size })}</span>
             </div>
             <div className="flex items-center gap-2 mb-3 flex-wrap">
-              <label className="label !mb-0">{t('admin.submissions.range_from')}</label>
-              <input type="date" className="input w-auto" value={rangeFrom} onChange={e => setRangeFrom(e.target.value)} />
-              <label className="label !mb-0">{t('admin.submissions.range_to')}</label>
-              <input type="date" className="input w-auto" value={rangeTo} onChange={e => setRangeTo(e.target.value)} />
+              {locale === 'kz' ? (
+                // Kazakh postpositions ("бастап"/"дейін" = "starting from"/"until")
+                // come AFTER the noun they modify, unlike Russian/English
+                // prepositions — so the date comes first, then the word.
+                <>
+                  <DateInputDDMMYYYY value={rangeFrom} onChange={setRangeFrom} />
+                  <label className="label !mb-0">{t('admin.submissions.range_from')}</label>
+                  <DateInputDDMMYYYY value={rangeTo} onChange={setRangeTo} />
+                  <label className="label !mb-0">{t('admin.submissions.range_to')}</label>
+                </>
+              ) : (
+                <>
+                  <label className="label !mb-0">{t('admin.submissions.range_from')}</label>
+                  <DateInputDDMMYYYY value={rangeFrom} onChange={setRangeFrom} />
+                  <label className="label !mb-0">{t('admin.submissions.range_to')}</label>
+                  <DateInputDDMMYYYY value={rangeTo} onChange={setRangeTo} />
+                </>
+              )}
               <button type="button" onClick={selectByRange} disabled={!rangeFrom || !rangeTo} className="btn-ghost text-xs py-1.5 px-3 disabled:opacity-40">
                 {t('admin.submissions.select_range')}
               </button>
