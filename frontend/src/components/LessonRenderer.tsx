@@ -1,7 +1,6 @@
-import { useEffect, useRef } from 'react'
-import katex from 'katex'
 import { ContentBlock, HeadingBlock } from '@/types'
 import LatexText from '@/components/LatexText'
+import FormulaPreview from '@/components/FormulaPreview'
 
 interface Props { blocks: ContentBlock[] }
 
@@ -25,7 +24,7 @@ export default function LessonRenderer({ blocks }: Props) {
           )
         }
         if (block.type === 'formula') {
-          return <FormulaBlock key={i} latex={block.latex} />
+          return <FormulaPreview key={i} latex={block.latex} />
         }
         if (block.type === 'image') {
           return (
@@ -39,18 +38,4 @@ export default function LessonRenderer({ blocks }: Props) {
       })}
     </div>
   )
-}
-
-function FormulaBlock({ latex }: { latex: string }) {
-  const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    if (ref.current) {
-      try {
-        katex.render(latex, ref.current, { displayMode: true, throwOnError: false })
-      } catch {
-        if (ref.current) ref.current.textContent = latex
-      }
-    }
-  }, [latex])
-  return <div ref={ref} className="overflow-x-auto py-2 text-center" />
 }

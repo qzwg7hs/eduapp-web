@@ -429,3 +429,26 @@ class NotificationRead(Base):
     __table_args__ = (
         UniqueConstraint("student_id", "notification_id", name="uq_notification_read_student_notification"),
     )
+
+
+class ProblemSubmission(Base):
+    """A problem a student authored themselves and sent in as a suggestion.
+    content_blocks uses the exact same shape as Lesson.content_blocks
+    (text/formula/image/heading) so the existing LessonRenderer displays it
+    unchanged, for both the student's own preview and the admin review view.
+
+    Purely a review inbox — nothing here ever auto-publishes into real
+    content (Test Bank, lessons, etc.); turning a good submission into an
+    actual problem is a manual admin decision made elsewhere, outside this
+    model. is_seen/seen_at track whether an admin has opened it yet, set
+    the moment the admin detail endpoint is hit (see routers/
+    problem_submissions.py) — not a separate "mark as read" action."""
+    __tablename__ = "problem_submissions"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    student_id = Column(UUID(as_uuid=True), ForeignKey("profiles.id", ondelete="CASCADE"), nullable=False)
+    title = Column(String, nullable=True)
+    content_blocks = Column(JSON, default=list)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    is_seen = Column(Boolean, default=False, server_default='false')
+    seen_at = Column(DateTime, nullable=True)

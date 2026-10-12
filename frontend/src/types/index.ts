@@ -280,6 +280,26 @@ export interface DuelDetail extends DuelListItem {
   opponent_results?: ExamResultRow[] | null;
 }
 
+// Problem submissions
+export interface ProblemSubmission {
+  id: string;
+  title?: string | null;
+  content_blocks: ContentBlock[];
+  created_at: string;
+}
+
+export interface ProblemSubmissionAdmin {
+  id: string;
+  student_id: string;
+  student_name: string;
+  student_surname: string;
+  student_unique_id: string | null;
+  title?: string | null;
+  content_blocks: ContentBlock[];
+  created_at: string;
+  is_seen: boolean;
+}
+
 // Notifications
 export interface NotificationOut {
   id: string;

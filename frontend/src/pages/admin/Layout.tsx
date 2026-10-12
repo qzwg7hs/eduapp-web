@@ -3,7 +3,7 @@ import { NavLink, Outlet, Navigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
 import type { Locale } from '@/i18n/translations'
-import { LayoutDashboard, Users, BookOpen, Zap, ClipboardList, Target, Bell, type LucideIcon } from 'lucide-react'
+import { LayoutDashboard, Users, BookOpen, Zap, ClipboardList, Target, Bell, Lightbulb, type LucideIcon } from 'lucide-react'
 import { resetThemeAccent } from '@/lib/cosmeticColors'
 
 interface NavItem {
@@ -32,6 +32,7 @@ export default function AdminLayout() {
     { to: '/admin/test-bank',label: t('admin.nav.testbank'), icon: ClipboardList },
     { to: '/admin/missions', label: t('admin.nav.missions'), icon: Target },
     { to: '/admin/notifications', label: t('admin.nav.notifications'), icon: Bell },
+    { to: '/admin/submissions', label: t('admin.nav.submissions'), icon: Lightbulb },
   ]
 
   const localeSwitcher = (

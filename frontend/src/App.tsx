@@ -13,6 +13,7 @@ import StudentTopics from '@/pages/student/Topics'
 import StudentTest   from '@/pages/student/Test'
 import StudentTestBank from '@/pages/student/TestBank'
 import StudentDuels from '@/pages/student/Duels'
+import StudentSubmitProblem from '@/pages/student/SubmitProblem'
 import StudentDuel from '@/pages/student/Duel'
 import AdminLayout from '@/pages/admin/Layout'
 import AdminDashboard from '@/pages/admin/Dashboard'
@@ -22,6 +23,7 @@ import AdminPod from '@/pages/admin/Pod'
 import AdminTestBank from '@/pages/admin/TestBank'
 import AdminMissions from '@/pages/admin/Missions'
 import AdminNotifications from '@/pages/admin/Notifications'
+import AdminProblemSubmissions from '@/pages/admin/ProblemSubmissions'
 
 function RootRedirect() {
   const { profile, loading } = useAuth()
@@ -50,6 +52,7 @@ export default function App() {
             <Route path="exam" element={<StudentTestBank />} />
             <Route path="duels" element={<StudentDuels />} />
             <Route path="duel/:id" element={<StudentDuel />} />
+            <Route path="submit-problem" element={<StudentSubmitProblem />} />
             <Route path="profile" element={<StudentProfile />} />
           </Route>
 
@@ -61,6 +64,7 @@ export default function App() {
             <Route path="test-bank" element={<AdminTestBank />} />
             <Route path="missions" element={<AdminMissions />} />
             <Route path="notifications" element={<AdminNotifications />} />
+            <Route path="submissions" element={<AdminProblemSubmissions />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -503,3 +503,29 @@ class DuelDetailOut(DuelListItemOut):
     questions: Optional[List[ExamQuestionOut]] = None
     my_results: Optional[List[ExamResultRow]] = None
     opponent_results: Optional[List[ExamResultRow]] = None   # only once status == "completed"
+
+
+# ── Problem submissions ────────────────────────────────────────────────────────
+
+class ProblemSubmissionCreate(BaseModel):
+    title: Optional[str] = None
+    content_blocks: List[Any] = []
+
+class ProblemSubmissionOut(BaseModel):
+    """Student's own view of something they submitted — no is_seen; whether
+    an admin has looked at it yet isn't the submitting student's business."""
+    id: UUID
+    title: Optional[str] = None
+    content_blocks: List[Any]
+    created_at: datetime
+
+class ProblemSubmissionAdminOut(BaseModel):
+    id: UUID
+    student_id: UUID
+    student_name: str
+    student_surname: str
+    student_unique_id: Optional[str] = None
+    title: Optional[str] = None
+    content_blocks: List[Any]
+    created_at: datetime
+    is_seen: bool
