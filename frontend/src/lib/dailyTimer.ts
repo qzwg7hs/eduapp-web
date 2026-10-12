@@ -39,3 +39,16 @@ export function formatUtc5DateTime(iso: string): string {
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${pad(shifted.getUTCDate())}.${pad(shifted.getUTCMonth() + 1)}.${shifted.getUTCFullYear()} ${pad(shifted.getUTCHours())}:${pad(shifted.getUTCMinutes())}`
 }
+
+/** Start of a UTC+5 calendar day ("YYYY-MM-DD", as from a <input type="date">),
+ * as a UTC epoch ms — i.e. 00:00 UTC+5 on that date. Used to select
+ * submissions "from this day to this day, both included" in the site's
+ * actual UTC+5 convention, not the viewer's own browser timezone. */
+export function utc5DayStartUtcMs(dateStr: string): number {
+  return new Date(`${dateStr}T00:00:00Z`).getTime() - 5 * 3600 * 1000
+}
+
+/** End of that same UTC+5 calendar day (23:59:59.999 UTC+5), as UTC epoch ms. */
+export function utc5DayEndUtcMs(dateStr: string): number {
+  return utc5DayStartUtcMs(dateStr) + 24 * 3600 * 1000 - 1
+}

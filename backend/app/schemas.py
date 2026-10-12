@@ -530,3 +530,6 @@ class ProblemSubmissionAdminOut(BaseModel):
     content_blocks: List[Any]
     created_at: datetime
     is_seen: bool
+
+class ProblemSubmissionExportRequest(BaseModel):
+    ids: List[UUID]
