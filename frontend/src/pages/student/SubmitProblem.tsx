@@ -6,6 +6,7 @@ import { useI18n } from '@/contexts/I18nContext'
 import { ContentBlock, ProblemSubmission } from '@/types'
 import ProblemSubmissionEditor from '@/components/ProblemSubmissionEditor'
 import LessonRenderer from '@/components/LessonRenderer'
+import { formatUtc5DateTime } from '@/lib/dailyTimer'
 import { Lightbulb, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react'
 
 export default function StudentSubmitProblem() {
@@ -99,7 +100,7 @@ export default function StudentSubmitProblem() {
                     <p className="text-sm font-semibold text-gray-900 truncate">
                       {sub.title || t('submit.untitled')}
                     </p>
-                    <p className="text-xs text-muted">{new Date(sub.created_at).toLocaleDateString()}</p>
+                    <p className="text-xs text-muted">{formatUtc5DateTime(sub.created_at)}</p>
                   </div>
                   {isOpen ? <ChevronUp className="w-4 h-4 text-muted flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted flex-shrink-0" />}
                 </button>

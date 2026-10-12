@@ -3,6 +3,8 @@ import api from '@/api/client'
 import { useI18n } from '@/contexts/I18nContext'
 import { ProblemSubmissionAdmin } from '@/types'
 import LessonRenderer from '@/components/LessonRenderer'
+import RawBlockView from '@/components/RawBlockView'
+import { formatUtc5DateTime } from '@/lib/dailyTimer'
 import { Lightbulb, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
 
 export default function AdminProblemSubmissions() {
@@ -81,7 +83,7 @@ export default function AdminProblemSubmissions() {
                       )}
                     </p>
                     <p className="text-xs text-muted truncate">
-                      {sub.student_name} {sub.student_surname} ({sub.student_unique_id}) · {new Date(sub.created_at).toLocaleDateString()}
+                      {sub.student_name} {sub.student_surname} ({sub.student_unique_id}) · {formatUtc5DateTime(sub.created_at)} (UTC+5)
                     </p>
                   </div>
                   <button
@@ -93,8 +95,19 @@ export default function AdminProblemSubmissions() {
                   {isOpen ? <ChevronUp className="w-4 h-4 text-muted flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted flex-shrink-0" />}
                 </button>
                 {isOpen && (
-                  <div className="px-4 pb-4 border-t border-border pt-3 bg-white">
-                    <LessonRenderer blocks={sub.content_blocks} />
+                  <div className="px-4 pb-4 border-t border-border pt-3 bg-white space-y-4">
+                    <div>
+                      <p className="text-xs font-semibold text-muted uppercase tracking-wide mb-2">{t('admin.submissions.preview_label')}</p>
+                      <div className="border border-border rounded-xl p-3 bg-bg">
+                        <LessonRenderer blocks={sub.content_blocks} />
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-muted uppercase tracking-wide mb-2">{t('admin.submissions.raw_label')}</p>
+                      <div className="space-y-3">
+                        {sub.content_blocks.map((block, i) => <RawBlockView key={i} block={block} />)}
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

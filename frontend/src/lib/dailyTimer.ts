@@ -26,3 +26,16 @@ export function formatCountdown(totalSec: number): string {
   const s = Math.floor(totalSec % 60).toString().padStart(2, '0')
   return `${h}:${m}:${s}`
 }
+
+/** Formats a server UTC timestamp as UTC+5 wall-clock date+time
+ * ("DD.MM.YYYY HH:mm") — deliberately NOT `.toLocaleString()`, which would
+ * render in the *viewer's own* browser timezone instead. The whole site's
+ * notion of "today"/"now" is UTC+5 (Kazakhstan time) everywhere — POD, the
+ * daily test, streaks, Duel — so anything displaying a timestamp to a
+ * person should show that same UTC+5 time, not wherever their device
+ * happens to be set to. */
+export function formatUtc5DateTime(iso: string): string {
+  const shifted = new Date(parseServerUtc(iso) + 5 * 3600 * 1000)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${pad(shifted.getUTCDate())}.${pad(shifted.getUTCMonth() + 1)}.${shifted.getUTCFullYear()} ${pad(shifted.getUTCHours())}:${pad(shifted.getUTCMinutes())}`
+}
