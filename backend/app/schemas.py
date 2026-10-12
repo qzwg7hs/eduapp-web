@@ -30,6 +30,7 @@ class ProfileOut(BaseModel):
     equipped_border_color: Optional[str] = None
     equipped_avatar_icon: Optional[str] = None
     duel_disabled: bool = False
+    submission_disabled: bool = False
 
     class Config:
         from_attributes = True

@@ -403,18 +403,22 @@ export default function StudentHome() {
       {/* Modest, permanent entry point for the problem-submission feature —
           deliberately not a main nav tab (nav is already fairly full) and
           not styled like the daily-habit banners above (no urgency/CTA
-          countdown — this is occasional-use, not a daily loop). */}
-      <button
-        onClick={() => navigate('/student/submit-problem')}
-        className="w-full rounded-2xl p-4 mt-3 text-left flex items-center gap-3 bg-surface border transition-all active:scale-[0.99] hover:shadow-md"
-        style={{ borderColor: '#f0e5d4' }}
-      >
-        <span className="text-2xl flex-shrink-0">💡</span>
-        <div className="flex-1 min-w-0">
-          <p className="font-display font-semibold text-sm text-gray-900">{t('home.submit_problem_title')}</p>
-          <p className="text-xs text-muted">{t('home.submit_problem_sub')}</p>
-        </div>
-      </button>
+          countdown — this is occasional-use, not a daily loop). Hidden
+          entirely for a student with submission_disabled, same pattern as
+          Duel's own opt-out — no trace of the feature for them at all. */}
+      {!profile?.submission_disabled && (
+        <button
+          onClick={() => navigate('/student/submit-problem')}
+          className="w-full rounded-2xl p-4 mt-3 text-left flex items-center gap-3 bg-surface border transition-all active:scale-[0.99] hover:shadow-md"
+          style={{ borderColor: '#f0e5d4' }}
+        >
+          <span className="text-2xl flex-shrink-0">💡</span>
+          <div className="flex-1 min-w-0">
+            <p className="font-display font-semibold text-sm text-gray-900">{t('home.submit_problem_title')}</p>
+            <p className="text-xs text-muted">{t('home.submit_problem_sub')}</p>
+          </div>
+        </button>
+      )}
     </div>
   )
 }

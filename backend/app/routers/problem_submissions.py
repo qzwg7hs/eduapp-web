@@ -25,10 +25,18 @@ _IMG_EXT = {
 }
 
 
+def require_submission_access(current_user: Profile = Depends(require_student)) -> Profile:
+    """Same as require_student, plus the (rare, admin-set) per-student
+    opt-out — mirrors require_duel_access in routers/duels.py."""
+    if current_user.submission_disabled:
+        raise HTTPException(403, "submission_access_disabled")
+    return current_user
+
+
 # ── Student ─────────────────────────────────────────────────────────────────
 
 @router.post("", response_model=ProblemSubmissionOut)
-def create_submission(body: ProblemSubmissionCreate, db: Session = Depends(get_db), current_user: Profile = Depends(require_student)):
+def create_submission(body: ProblemSubmissionCreate, db: Session = Depends(get_db), current_user: Profile = Depends(require_submission_access)):
     if not body.content_blocks:
         raise HTTPException(400, "submission_empty")
     row = ProblemSubmission(
@@ -43,7 +51,7 @@ def create_submission(body: ProblemSubmissionCreate, db: Session = Depends(get_d
 
 
 @router.get("/mine", response_model=list[ProblemSubmissionOut])
-def list_mine(db: Session = Depends(get_db), current_user: Profile = Depends(require_student)):
+def list_mine(db: Session = Depends(get_db), current_user: Profile = Depends(require_submission_access)):
     return (
         db.query(ProblemSubmission)
         .filter(ProblemSubmission.student_id == current_user.id)
@@ -53,7 +61,7 @@ def list_mine(db: Session = Depends(get_db), current_user: Profile = Depends(req
 
 
 @router.post("/upload-image")
-async def upload_submission_image(file: UploadFile = File(...), _=Depends(require_student)):
+async def upload_submission_image(file: UploadFile = File(...), _=Depends(require_submission_access)):
     ctype = file.content_type or ''
     if not ctype.startswith('image/'):
         raise HTTPException(400, "Only image files are supported")

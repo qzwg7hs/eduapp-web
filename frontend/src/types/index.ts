@@ -15,6 +15,7 @@ export interface Profile {
   equipped_border_color: string | null;
   equipped_avatar_icon: string | null;
   duel_disabled: boolean;
+  submission_disabled: boolean;
 }
 
 export type ContentLanguage = 'kz' | 'ru';

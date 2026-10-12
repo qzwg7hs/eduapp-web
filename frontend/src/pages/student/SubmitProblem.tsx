@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Navigate } from 'react-router-dom'
 import api from '@/api/client'
+import { useAuth } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
 import { ContentBlock, ProblemSubmission } from '@/types'
 import ProblemSubmissionEditor from '@/components/ProblemSubmissionEditor'
@@ -9,6 +10,7 @@ import { Lightbulb, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react'
 
 export default function StudentSubmitProblem() {
   const navigate = useNavigate()
+  const { profile } = useAuth()
   const { t } = useI18n()
   const [title, setTitle] = useState('')
   const [blocks, setBlocks] = useState<ContentBlock[]>([])
@@ -26,7 +28,7 @@ export default function StudentSubmitProblem() {
     setLoadingMine(false)
   }
 
-  useEffect(() => { loadMine() }, [])
+  useEffect(() => { if (!profile?.submission_disabled) loadMine() }, [profile?.submission_disabled])
 
   async function submit() {
     setError('')
@@ -45,6 +47,8 @@ export default function StudentSubmitProblem() {
       setSubmitting(false)
     }
   }
+
+  if (profile?.submission_disabled) return <Navigate to="/student" replace />
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">

@@ -133,6 +133,13 @@ def _run_migrations():
         with engine.begin() as conn:
             conn.execute(text("ALTER TABLE profiles ADD COLUMN duel_disabled BOOLEAN DEFAULT false"))
 
+    # submission_disabled: per-student opt-out of the problem-submission
+    # feature (see routers/problem_submissions.py's require_submission_access).
+    profile_cols4 = {c['name'] for c in insp.get_columns('profiles')}
+    if 'submission_disabled' not in profile_cols4:
+        with engine.begin() as conn:
+            conn.execute(text("ALTER TABLE profiles ADD COLUMN submission_disabled BOOLEAN DEFAULT false"))
+
     # Fix problems stuck as is_draft=True inside published lessons.
     # These were created by bulk upload before the is_draft=False fix was applied.
     # The publish cascade was skipping them; this repairs existing data.

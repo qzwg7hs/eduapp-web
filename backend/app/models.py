@@ -56,6 +56,12 @@ class Profile(Base):
     # direct DB update, no admin UI toggle yet).
     duel_disabled = Column(Boolean, default=False, server_default='false')
 
+    # Same idea as duel_disabled, but for the problem-submission feature
+    # (see require_submission_access in routers/problem_submissions.py) —
+    # a separate flag rather than reusing duel_disabled, since a student
+    # could reasonably be opted out of one feature and not the other.
+    submission_disabled = Column(Boolean, default=False, server_default='false')
+
 
 class Topic(Base):
     __tablename__ = "topics"
