@@ -31,10 +31,10 @@ from app.auth import hash_password
 from app.scoring import award_monthly_points, current_period_key
 
 # (name, surname, username, starting points)
-# Starting points are the originally-drafted values minus 250 (except
-# timur_nursultan, left as-is at 101) — full 900+ totals right out of the
-# gate would've read as implausible for accounts with no prior visible
-# activity.
+# Batch 1 starting points are the originally-drafted values minus 250
+# (except timur_nursultan, left as-is at 101) — full 900+ totals right out
+# of the gate would've read as implausible for accounts with no prior
+# visible activity. Created back in the Aug+Sep combined bootstrap period.
 FAKE_STUDENTS = [
     ("Гүлнұр", "Серікқали", "gulnur_serikkali", 701),
     ("Аброр", "Турсунов", "abror_tursunov", 687),
@@ -56,6 +56,33 @@ FAKE_STUDENTS = [
     ("Дінмұхаммед", "Серікұлы", "dinmukhammed_serikuly", 144),
     ("Екатерина", "Волкова", "ekaterina_volkova", 141),
     ("Тимур", "Нұрсұлтан", "timur_nursultan", 101),
+
+    # Batch 2 — created in the real October period, so points here ARE this
+    # month's MonthlyScore (not a separate lifetime figure to scale down).
+    # Scaled against October's actual real-student top 5 at creation time
+    # (360/194/164/155/126) so exactly two of these (230, 180) land inside
+    # it, the rest stay comfortably below — a deliberate, not accidental,
+    # spread per an explicit "2 should enter this month's top 5" ask.
+    ("Бекзат", "Оразұлы", "bekzat_orazuly", 230),
+    ("Мөлдір", "Сағынтай", "moldir_sagyntai", 180),
+    ("Әсем", "Бердібек", "asem_berdibek", 118),
+    ("Максим", "Королёв", "maksim_korolev", 109),
+    ("Арман", "Әбдірахман", "arman_abdirakhman", 97),
+    ("Назерке", "Байжанова", "nazerke_baizhanova", 88),
+    ("Ерболат", "Асанов", "erbolat_asanov", 79),
+    ("Умид", "Каримов", "umid_karimov", 71),
+    ("Станислав", "Цой", "stanislav_tsoi", 63),
+    ("Айнұр", "Мұхтарова", "ainur_mukhtarova", 54),
+    ("Нұрлан", "Жандос", "nurlan_zhandos", 47),
+    ("Жибек", "Нұрланқызы", "zhibek_nurlankyzy", 39),
+    ("Алдияр", "Серіков", "aldiyar_serikov", 32),
+    ("Шахзода", "Рахимова", "shakhzoda_rakhimova", 26),
+    ("Дильназ", "Қайратова", "dilnaz_kairatova", 19),
+    ("Анастасия", "Фёдорова", "anastasia_fedorova", 13),
+    ("Полина", "Нам", "polina_nam", 8),
+    ("Санат", "Құрманов", "sanat_kurmanov", 4),
+    ("Аружан", "Қалиева", "aruzhan_kalieva", 2),
+    ("Қуандық", "Төлегенов", "kuandyk_tolegenov", 0),
 ]
 
 FAKE_USERNAMES = {u for _, _, u, _ in FAKE_STUDENTS}
