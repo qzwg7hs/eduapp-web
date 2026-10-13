@@ -226,13 +226,18 @@ def admin_overview(language: str = "kz", db: Session = Depends(get_db)):
     from ..models import Topic, Problem, MonthlyScore
     from ..scoring import current_period_key, period_label
 
+    # total_students intentionally counts everyone (active + deactivated) —
+    # it's a roster size, not a ranking. The two "top students" lists below
+    # are rankings, so they're scoped to active students only, same as the
+    # student-facing leaderboard (routers/leaderboard.py) already is.
     students = db.query(Profile).filter(Profile.role == "student").all()
+    active_students = [s for s in students if s.is_active]
 
     period = current_period_key()
     monthly_rows = (
         db.query(Profile, MonthlyScore.points)
         .join(MonthlyScore, (MonthlyScore.student_id == Profile.id) & (MonthlyScore.period_key == period))
-        .filter(Profile.role == "student", MonthlyScore.points > 0)
+        .filter(Profile.role == "student", Profile.is_active == True, MonthlyScore.points > 0)
         .order_by(MonthlyScore.points.desc())
         .limit(5)
         .all()
@@ -244,7 +249,7 @@ def admin_overview(language: str = "kz", db: Session = Depends(get_db)):
         "total_problems": db.query(Problem).count(),
         "top_students": [
             {"name": s.name, "surname": s.surname, "points": s.points}
-            for s in sorted(students, key=lambda x: x.points, reverse=True)[:5]
+            for s in sorted(active_students, key=lambda x: x.points, reverse=True)[:5]
         ],
         "monthly_period_label": period_label(period, language),
         "top_students_monthly": [
