@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import api from '@/api/client'
 import { Profile } from '@/types'
 import { useI18n } from '@/contexts/I18nContext'
-import { CheckCircle2, XCircle, ChevronDown, ChevronUp, Search, X, Eye, EyeOff } from 'lucide-react'
+import { CheckCircle2, XCircle, ChevronDown, ChevronUp, Search, X, Eye, EyeOff, Swords, Zap } from 'lucide-react'
 import ScoreTrendChart from '@/components/ScoreTrendChart'
+import { formatUtc5DateTime } from '@/lib/dailyTimer'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -31,6 +32,27 @@ interface TestBankExamRow {
   submitted_at:     string | null
 }
 
+interface PodAttemptRow {
+  date:           string
+  is_correct:     boolean
+  points_earned:  number
+  answer:         string | null
+  attempted_at:   string | null
+}
+
+interface DuelRow {
+  id:                string
+  created_at:        string | null
+  status:            string
+  opponent_name:     string
+  opponent_surname:  string
+  my_score:          number
+  opponent_score:    number
+  total:             number
+  winner:            'me' | 'opponent' | 'tie' | null
+  points_earned:     number | null
+}
+
 interface StudentResults {
   student: {
     id: string; name: string; surname: string
@@ -42,6 +64,8 @@ interface StudentResults {
   total_points:   number
   results:        ResultRow[]
   test_bank_exams: TestBankExamRow[]
+  pod_attempts:   PodAttemptRow[]
+  duels:          DuelRow[]
 }
 
 // ─── Edit modal state ─────────────────────────────────────────────────────────
@@ -377,7 +401,7 @@ function ResultsView({
   onClose: () => void
   t: (key: string, vars?: Record<string, string | number>) => string
 }) {
-  const { student, correct_count, total_attempts, results: rows, test_bank_exams: exams } = results
+  const { student, correct_count, total_attempts, results: rows, test_bank_exams: exams, pod_attempts: pods, duels } = results
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
 
   function toggleGroup(key: string) {
@@ -470,11 +494,75 @@ function ResultsView({
         </div>
       )}
 
+      {/* Problem of the Day history */}
+      {pods.length > 0 && (
+        <div className="mb-6">
+          <p className="text-xs font-bold text-muted uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <Zap className="w-3.5 h-3.5" /> Есеп күні / Задача дня
+          </p>
+          <div className="space-y-1.5">
+            {pods.map(p => (
+              <div key={p.date} className="flex items-center justify-between px-3 py-2 rounded-lg text-sm" style={{ background: '#f9f6f1', border: '1px solid #f0e5d4' }}>
+                <div className="flex items-center gap-2">
+                  {p.is_correct
+                    ? <CheckCircle2 className="w-4 h-4 text-success flex-shrink-0" />
+                    : <XCircle className="w-4 h-4 text-danger flex-shrink-0" />}
+                  <span className="text-gray-900 font-medium">{p.date}</span>
+                  {p.answer && <span className="text-xs text-muted">Ответ: {p.answer}</span>}
+                </div>
+                <span className="font-display font-semibold" style={{ color: p.points_earned > 0 ? '#2a7d5f' : '#374151' }}>
+                  {p.points_earned > 0 ? `+${p.points_earned}` : '0'}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Duel history — who they played, score, result, points */}
+      {duels.length > 0 && (
+        <div className="mb-6">
+          <p className="text-xs font-bold text-muted uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <Swords className="w-3.5 h-3.5" /> Дуэль
+          </p>
+          <div className="space-y-1.5">
+            {duels.map(d => {
+              const statusLabel: Record<string, string> = {
+                pending: 'Ожидает ответа', declined: 'Отклонена', expired: 'Истекла',
+                active: 'Идёт сейчас', completed: '',
+              }
+              const resultColor = d.winner === 'me' ? '#2a7d5f' : d.winner === 'opponent' ? '#dc2626' : '#374151'
+              return (
+                <div key={d.id} className="px-3 py-2 rounded-lg text-sm" style={{ background: '#f9f6f1', border: '1px solid #f0e5d4' }}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-gray-900 font-medium truncate">
+                        vs {d.opponent_name} {d.opponent_surname}
+                      </span>
+                      {statusLabel[d.status] && (
+                        <span className="badge bg-gray-100 text-gray-600 text-xs flex-shrink-0">{statusLabel[d.status]}</span>
+                      )}
+                    </div>
+                    {d.status === 'completed' && (
+                      <span className="font-display font-semibold flex-shrink-0" style={{ color: resultColor }}>
+                        {d.my_score} : {d.opponent_score}
+                        {d.points_earned != null && d.points_earned > 0 && ` (+${d.points_earned})`}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted mt-0.5">{d.created_at ? `${formatUtc5DateTime(d.created_at)} (UTC+5)` : ''}</p>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
       {rows.length > 0 && (
         <p className="text-xs font-bold text-muted uppercase tracking-wider mb-2">Тақырып тесттері / Тесты по темам</p>
       )}
       {rows.length === 0 ? (
-        exams.length === 0 && <p className="text-center text-muted py-8">Нет попыток</p>
+        exams.length === 0 && pods.length === 0 && duels.length === 0 && <p className="text-center text-muted py-8">Нет попыток</p>
       ) : (
         <div className="space-y-3">
           {Object.entries(grouped).map(([topic, subs]) => (

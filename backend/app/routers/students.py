@@ -1,9 +1,10 @@
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models import Profile, ProblemAttempt, Problem, Lesson, SubTopic, Topic, DailyExam
+from ..models import Profile, ProblemAttempt, Problem, Lesson, SubTopic, Topic, DailyExam, PodAttempt, ProblemOfDay, Duel
 from ..schemas import ProfileOut, StudentCreate, StudentUpdate
 from ..auth import hash_password, require_admin
 
@@ -164,6 +165,57 @@ def get_student_results(student_id: UUID, db: Session = Depends(get_db), _=Depen
         for e in exams
     ]
 
+    # Problem of the Day history — one row per day the student actually answered
+    pod_pairs = (
+        db.query(PodAttempt, ProblemOfDay)
+        .join(ProblemOfDay, ProblemOfDay.id == PodAttempt.pod_id)
+        .filter(PodAttempt.student_id == student_id)
+        .order_by(ProblemOfDay.date.desc())
+        .all()
+    )
+    pod_rows = [
+        {
+            "date": pod.date.isoformat(),
+            "is_correct": att.is_correct,
+            "points_earned": att.points_earned,
+            "answer": att.answer,
+            "attempted_at": att.attempted_at.isoformat() if att.attempted_at else None,
+        }
+        for att, pod in pod_pairs
+    ]
+
+    # Duel history — both roles (challenger/opponent) resolved to "me vs
+    # opponent" from this student's point of view, same shape either way.
+    duels = (
+        db.query(Duel)
+        .filter(or_(Duel.challenger_id == student_id, Duel.opponent_id == student_id))
+        .order_by(Duel.created_at.desc())
+        .all()
+    )
+    duel_rows = []
+    for d in duels:
+        am_challenger = d.challenger_id == student_id
+        opponent_id = d.opponent_id if am_challenger else d.challenger_id
+        opponent = db.query(Profile).filter(Profile.id == opponent_id).first()
+        my_score = d.challenger_score if am_challenger else d.opponent_score
+        opponent_score = d.opponent_score if am_challenger else d.challenger_score
+        my_points = d.challenger_points_awarded if am_challenger else d.opponent_points_awarded
+        winner = None
+        if d.status == "completed":
+            winner = "tie" if d.winner_id is None else ("me" if str(d.winner_id) == str(student_id) else "opponent")
+        duel_rows.append({
+            "id": str(d.id),
+            "created_at": d.created_at.isoformat() if d.created_at else None,
+            "status": d.status,
+            "opponent_name": opponent.name if opponent else "?",
+            "opponent_surname": opponent.surname if opponent else "?",
+            "my_score": my_score,
+            "opponent_score": opponent_score,
+            "total": len(d.question_numbers or []),
+            "winner": winner,
+            "points_earned": my_points if d.points_awarded else None,
+        })
+
     return {
         "student": {
             "id":             str(student.id),
@@ -179,4 +231,6 @@ def get_student_results(student_id: UUID, db: Session = Depends(get_db), _=Depen
         "total_points":   student.points,
         "results":        rows,
         "test_bank_exams": exam_rows,
+        "pod_attempts":   pod_rows,
+        "duels":          duel_rows,
     }
