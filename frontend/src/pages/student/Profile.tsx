@@ -5,7 +5,8 @@ import { useI18n } from '@/contexts/I18nContext'
 import ScoreTrendChart from '@/components/ScoreTrendChart'
 import Avatar from '@/components/Avatar'
 import AnimalIcon from '@/components/AnimalIcon'
-import { MonthlyLeaderboardOut, MissionOut, CosmeticOptions } from '@/types'
+import { MonthlyLeaderboardOut, MissionOut, CosmeticOptions, CommunityTestAttemptSummary } from '@/types'
+import { useNavigate } from 'react-router-dom'
 
 interface ExamHistoryPoint { exam_date: string; score: number; total: number }
 
@@ -36,6 +37,7 @@ function formatPoints(pts: number) {
 
 export default function StudentProfile() {
   const { profile, signOut, refreshProfile } = useAuth()
+  const navigate = useNavigate()
   const { t, locale } = useI18n()
   const [stats, setStats] = useState({ total_attempts: 0, correct_attempts: 0, problems_solved: 0, pod_solved: 0, lessons_completed: 0 })
   const [loading, setLoading] = useState(true)
@@ -44,10 +46,15 @@ export default function StudentProfile() {
   const [missions, setMissions] = useState<MissionOut[]>([])
   const [cosmetics, setCosmetics] = useState<CosmeticOptions | null>(null)
   const [equipping, setEquipping] = useState(false)
+  const [communityTestAttempts, setCommunityTestAttempts] = useState<CommunityTestAttemptSummary[]>([])
 
   useEffect(() => {
     api.get('/progress/stats').then(r => { setStats(r.data); setLoading(false) })
     api.get<ExamHistoryPoint[]>('/test-bank/history').then(r => setExamHistory(r.data)).catch(() => setExamHistory([]))
+    // Durable access point to Community Test results, independent of
+    // whether an edition is currently active — only shown below if the
+    // student has ever attempted one.
+    api.get<CommunityTestAttemptSummary[]>('/community-test/attempts').then(r => setCommunityTestAttempts(r.data)).catch(() => setCommunityTestAttempts([]))
   }, [])
 
   useEffect(() => {
@@ -232,6 +239,30 @@ export default function StudentProfile() {
             <p className="text-sm text-muted mt-3">{t('profile.customize_none_yet')}</p>
           )}
         </div>
+      )}
+
+      {/* Community Test results — only shown if the student has ever
+          attempted one, so it adds no clutter for students who haven't
+          engaged with this feature. Durable second access point to results
+          beyond the Home card, per the "what if they lose track of it"
+          concern this feature was designed around. */}
+      {communityTestAttempts.length > 0 && (
+        <button
+          onClick={() => navigate('/student/community-test/history')}
+          className="w-full text-left card flex items-center justify-between"
+          style={{ boxShadow: '0 4px 16px -8px rgba(44,36,24,0.1)' }}
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🧮</span>
+            <div>
+              <p className="text-sm font-semibold text-gray-900">{t('profile.community_test_title')}</p>
+              <p className="text-xs text-muted">{t('profile.community_test_sub', { n: communityTestAttempts.length })}</p>
+            </div>
+          </div>
+          <span className="text-xs font-semibold flex-shrink-0" style={{ color: 'var(--accent, #e8622c)' }}>
+            {t('profile.community_test_view')} →
+          </span>
+        </button>
       )}
 
       {/* Daily exam score trend */}

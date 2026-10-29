@@ -4,7 +4,8 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models import Profile, ProblemAttempt, Problem, Lesson, SubTopic, Topic, DailyExam, PodAttempt, ProblemOfDay, Duel
+from ..models import Profile, ProblemAttempt, Problem, Lesson, SubTopic, Topic, DailyExam, PodAttempt, ProblemOfDay, Duel, CommunityTest, CommunityTestAttempt
+from .community_test import _attempt_number
 from ..schemas import ProfileOut, StudentCreate, StudentUpdate
 from ..auth import hash_password, require_admin
 
@@ -216,6 +217,28 @@ def get_student_results(student_id: UUID, db: Session = Depends(get_db), _=Depen
             "points_earned": my_points if d.points_awarded else None,
         })
 
+    # Community Test history — across every edition the student has ever
+    # attempted, tagged with that edition's own title so old results stay
+    # identifiable after the admin swaps in a new question set.
+    ct_attempts = (
+        db.query(CommunityTestAttempt)
+        .filter(CommunityTestAttempt.student_id == student_id, CommunityTestAttempt.submitted_at.isnot(None))
+        .order_by(CommunityTestAttempt.created_at.desc())
+        .all()
+    )
+    ct_tests = {t.id: t for t in db.query(CommunityTest).all()}
+    community_test_rows = [
+        {
+            "test_title":       (ct_tests[a.test_id].title_kz or ct_tests[a.test_id].title_ru or "") if a.test_id in ct_tests else "",
+            "attempt_number":   _attempt_number(db, a.test_id, student_id, a.id),
+            "score":            a.score,
+            "total":            len(a.question_numbers or []),
+            "terminated_early": a.terminated_early,
+            "submitted_at":     a.submitted_at.isoformat() if a.submitted_at else None,
+        }
+        for a in ct_attempts
+    ]
+
     return {
         "student": {
             "id":             str(student.id),
@@ -233,4 +256,5 @@ def get_student_results(student_id: UUID, db: Session = Depends(get_db), _=Depen
         "test_bank_exams": exam_rows,
         "pod_attempts":   pod_rows,
         "duels":          duel_rows,
+        "community_test_attempts": community_test_rows,
     }

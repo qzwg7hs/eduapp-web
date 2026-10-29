@@ -437,6 +437,69 @@ class NotificationRead(Base):
     )
 
 
+class CommunityTest(Base):
+    """One row PER EDITION, not a singleton -- this is what makes the
+    feature swappable. At most one row has is_active=True at a time
+    (enforced in the 'activate'/seed flow, not a DB constraint): that's
+    the test students currently see and can attempt. Older rows (and
+    their questions/attempts) are kept forever for admin/student history
+    even after a new edition replaces them. Started as a one-off import
+    of a 43-question student-made test (see backend/seed_community_test.py)
+    but the feature is deliberately reusable: a later edition just means
+    running that seed script again with new content."""
+    __tablename__ = "community_tests"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    title_kz = Column(String, nullable=True)
+    title_ru = Column(String, nullable=True)
+    description_kz = Column(Text, nullable=True)
+    description_ru = Column(Text, nullable=True)
+    time_limit_minutes = Column(Integer, nullable=False, default=60, server_default='60')
+    is_active = Column(Boolean, nullable=False, default=False, server_default='false')
+    created_at = Column(DateTime, default=datetime.utcnow)
+    activated_at = Column(DateTime, nullable=True)
+    closed_at = Column(DateTime, nullable=True)   # set when a newer edition replaces this one
+
+
+class CommunityTestQuestion(Base):
+    __tablename__ = "community_test_questions"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    test_id = Column(UUID(as_uuid=True), ForeignKey("community_tests.id", ondelete="CASCADE"), nullable=False, index=True)
+    number = Column(Integer, nullable=False)   # 1..N within this edition, original doc order
+    question_kz = Column(Text, nullable=False)
+    question_ru = Column(Text, nullable=False)
+    options_kz = Column(JSON, default=list)   # exactly 4 strings, in A-D order
+    options_ru = Column(JSON, default=list)   # exactly 4 strings, independently localized
+    correct_option = Column(Integer, nullable=False)  # 0-3
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class CommunityTestAttempt(Base):
+    """One row per attempt -- unlimited rows per student per edition,
+    intentionally (unlike PodAttempt/DailyExam's one-per-day uniqueness).
+    FK'd to the specific edition so attempts remain correctly attributed
+    even after that edition is no longer active. attempt_number is
+    derived at read time (this student's rows for this test_id, ordered
+    by created_at), not stored. No points/streak/mission credit is
+    awarded for this feature -- unlimited attempts would make that an
+    uncapped points farm."""
+    __tablename__ = "community_test_attempts"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    test_id = Column(UUID(as_uuid=True), ForeignKey("community_tests.id", ondelete="CASCADE"), nullable=False, index=True)
+    student_id = Column(UUID(as_uuid=True), ForeignKey("profiles.id", ondelete="CASCADE"), nullable=False, index=True)
+    language = Column(String, nullable=False, default="kz")
+    question_numbers = Column(JSON, default=list)   # this edition's numbers, SHUFFLED, fixed at start
+    started_at = Column(DateTime, nullable=True)
+    submitted_at = Column(DateTime, nullable=True)
+    terminated_early = Column(Boolean, default=False, server_default='false')
+    answers = Column(JSON, default=dict)   # {"<number>": {"selected_option": int|None}}
+    results = Column(JSON, default=dict)   # {"<number>": {"is_correct": bool}} -- graded once, frozen
+    score = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
 class ProblemSubmission(Base):
     """A problem a student authored themselves and sent in as a suggestion.
     content_blocks uses the exact same shape as Lesson.content_blocks

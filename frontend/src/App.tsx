@@ -15,6 +15,9 @@ import StudentTestBank from '@/pages/student/TestBank'
 import StudentDuels from '@/pages/student/Duels'
 import StudentSubmitProblem from '@/pages/student/SubmitProblem'
 import StudentDuel from '@/pages/student/Duel'
+import StudentCommunityTest from '@/pages/student/CommunityTest'
+import StudentCommunityTestHistory from '@/pages/student/CommunityTestHistory'
+import StudentCommunityTestAttemptDetail from '@/pages/student/CommunityTestAttemptDetail'
 import AdminLayout from '@/pages/admin/Layout'
 import AdminDashboard from '@/pages/admin/Dashboard'
 import AdminStudents from '@/pages/admin/Students'
@@ -24,6 +27,7 @@ import AdminTestBank from '@/pages/admin/TestBank'
 import AdminMissions from '@/pages/admin/Missions'
 import AdminNotifications from '@/pages/admin/Notifications'
 import AdminProblemSubmissions from '@/pages/admin/ProblemSubmissions'
+import AdminCommunityTest from '@/pages/admin/CommunityTest'
 
 function RootRedirect() {
   const { profile, loading } = useAuth()
@@ -53,6 +57,9 @@ export default function App() {
             <Route path="duels" element={<StudentDuels />} />
             <Route path="duel/:id" element={<StudentDuel />} />
             <Route path="submit-problem" element={<StudentSubmitProblem />} />
+            <Route path="community-test" element={<StudentCommunityTest />} />
+            <Route path="community-test/history" element={<StudentCommunityTestHistory />} />
+            <Route path="community-test/attempt/:id" element={<StudentCommunityTestAttemptDetail />} />
             <Route path="profile" element={<StudentProfile />} />
           </Route>
 
@@ -65,6 +72,7 @@ export default function App() {
             <Route path="missions" element={<AdminMissions />} />
             <Route path="notifications" element={<AdminNotifications />} />
             <Route path="submissions" element={<AdminProblemSubmissions />} />
+            <Route path="community-test" element={<AdminCommunityTest />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

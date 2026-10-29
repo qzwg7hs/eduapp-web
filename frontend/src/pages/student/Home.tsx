@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import api from '@/api/client'
 import { useAuth } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
-import { TopicInTree, ContinueProgress, ExamStatusOut, PodStatusOut, MissionOut } from '@/types'
+import { TopicInTree, ContinueProgress, ExamStatusOut, PodStatusOut, MissionOut, CommunityTestStatus } from '@/types'
 import { secondsUntilNextUtcHour, formatCountdown } from '@/lib/dailyTimer'
 import { Swords, Lightbulb, X } from 'lucide-react'
 
@@ -44,6 +44,7 @@ export default function StudentHome() {
   const [missions, setMissions] = useState<MissionOut[]>([])
   const [showDuelAnnouncement, setShowDuelAnnouncement] = useState(false)
   const [showSubmissionAnnouncement, setShowSubmissionAnnouncement] = useState(false)
+  const [communityTest, setCommunityTest] = useState<CommunityTestStatus | null>(null)
 
   useEffect(() => {
     try {
@@ -97,6 +98,15 @@ export default function StudentHome() {
     api.get<ExamStatusOut>('/test-bank/today', { params: { language: locale } })
       .then(r => setExamTaken(r.data.status === 'submitted'))
       .catch(() => setExamTaken(false))
+  }, [locale])
+
+  // Community Test card — no dismiss, no localStorage; it simply disappears
+  // on its own once the admin has no active edition, and reappears when
+  // they publish a new one. See CommunityTestStatus.status for the states.
+  useEffect(() => {
+    api.get<CommunityTestStatus>('/community-test/status', { params: { language: locale } })
+      .then(r => setCommunityTest(r.data))
+      .catch(() => setCommunityTest(null))
   }, [locale])
 
   useEffect(() => {
@@ -448,6 +458,35 @@ export default function StudentHome() {
           </span>
         )}
       </button>
+
+      {/* Community Test — a quiet, permanent card (no X dismiss, no
+          localStorage) that simply isn't rendered when there's no active
+          edition. Content adapts to whether the student has ever
+          attempted the current edition, so "take it" / "take it again,
+          here's your last score" / "view past attempts" is always the
+          right CTA without needing a separate announcement mechanism. */}
+      {communityTest && communityTest.status !== 'no_active_test' && (
+        <button
+          onClick={() => navigate('/student/community-test')}
+          className="w-full rounded-2xl p-4 mt-3 text-left flex items-center gap-3 bg-surface border transition-all active:scale-[0.99] hover:shadow-md"
+          style={{ borderColor: '#f0e5d4' }}
+        >
+          <span className="text-2xl flex-shrink-0">🧮</span>
+          <div className="flex-1 min-w-0">
+            <p className="font-display font-semibold text-sm text-gray-900 truncate">{communityTest.title}</p>
+            <p className="text-xs text-muted">
+              {communityTest.last_attempt
+                ? t('home.community_test_sub_attempted', {
+                    score: communityTest.last_attempt.score, total: communityTest.last_attempt.total,
+                  })
+                : t('home.community_test_sub_new')}
+            </p>
+          </div>
+          <span className="text-xs font-semibold flex-shrink-0" style={{ color: 'var(--accent, #e8622c)' }}>
+            {communityTest.last_attempt ? t('home.community_test_cta_again') : t('home.community_test_cta_start')}
+          </span>
+        </button>
+      )}
 
       {/* Modest, permanent entry point for the problem-submission feature —
           deliberately not a main nav tab (nav is already fairly full) and

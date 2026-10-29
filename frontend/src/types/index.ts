@@ -340,6 +340,106 @@ export interface ImageBlock   { type: 'image';   url: string; caption?: string }
 export interface HeadingBlock { type: 'heading'; level: 1 | 2 | 3; content: string }
 export type ContentBlock = TextBlock | FormulaBlock | ImageBlock | HeadingBlock;
 
+// Community Test — a reusable, swappable timed MCQ test slot (unlimited
+// attempts, no points awarded). Student-facing types deliberately have no
+// field for the correct answer anywhere; the backend schema omits it, this
+// isn't just "the frontend doesn't render it".
+export interface CommunityTestQuestion {
+  number: number;
+  question: string;
+  options: string[];
+}
+
+export interface CommunityTestResultRow {
+  number: number;
+  question: string;
+  given_selected_option?: number | null;
+  is_correct: boolean;
+}
+
+export interface CommunityTestAttemptSummary {
+  id: string;
+  test_id: string;
+  test_title: string;
+  attempt_number: number;
+  score: number;
+  total: number;
+  submitted_at?: string | null;
+  terminated_early: boolean;
+}
+
+export type CommunityTestStatusValue = 'no_active_test' | 'not_started' | 'in_progress' | 'submitted';
+
+export interface CommunityTestStatus {
+  status: CommunityTestStatusValue;
+  test_id?: string | null;
+  title?: string | null;
+  description?: string | null;
+  time_limit_minutes?: number | null;
+  attempts_count?: number | null;
+  last_attempt?: CommunityTestAttemptSummary | null;
+  started_at?: string | null;
+  questions?: CommunityTestQuestion[] | null;
+  results?: CommunityTestResultRow[] | null;
+  score?: number | null;
+  total?: number | null;
+  terminated_early?: boolean | null;
+}
+
+// Community Test — admin
+export interface CommunityTestAdmin {
+  id: string;
+  title_kz?: string | null;
+  title_ru?: string | null;
+  description_kz?: string | null;
+  description_ru?: string | null;
+  time_limit_minutes: number;
+  is_active: boolean;
+  created_at: string;
+  activated_at?: string | null;
+  closed_at?: string | null;
+  question_count: number;
+  attempt_count: number;
+}
+
+export interface CommunityTestAdminAttemptRow {
+  id: string;
+  test_id: string;
+  test_title: string;
+  student_id: string;
+  student_name: string;
+  student_surname: string;
+  attempt_number: number;
+  score: number;
+  total: number;
+  started_at?: string | null;
+  submitted_at?: string | null;
+  terminated_early: boolean;
+}
+
+export interface CommunityTestAdminResultRow {
+  number: number;
+  question: string;
+  options: string[];
+  given_selected_option?: number | null;
+  correct_option: number;
+  is_correct: boolean;
+}
+
+export interface CommunityTestAdminAttemptDetail {
+  id: string;
+  test_title: string;
+  student_name: string;
+  student_surname: string;
+  attempt_number: number;
+  score: number;
+  total: number;
+  started_at?: string | null;
+  submitted_at?: string | null;
+  terminated_early: boolean;
+  results: CommunityTestAdminResultRow[];
+}
+
 // Topic tree (returned by /api/topics/tree)
 export interface LessonInTree {
   id: string;

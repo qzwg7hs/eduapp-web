@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import inspect, text
 
 from .database import engine, Base, settings
-from .routers import auth, topics, problems, pod, students, leaderboard, progress, test_bank, missions, cosmetics, notifications, duels, problem_submissions
+from .routers import auth, topics, problems, pod, students, leaderboard, progress, test_bank, missions, cosmetics, notifications, duels, problem_submissions, community_test
 # Note: the "reports" (problem complaints) router is deliberately not mounted —
 # the feature was removed from the product surface. app/routers/reports.py and
 # the ProblemReport model/table are left in place, unused, in case it's revived.
@@ -178,6 +178,7 @@ app.include_router(cosmetics.router, prefix="/api")
 app.include_router(notifications.router, prefix="/api")
 app.include_router(duels.router, prefix="/api")
 app.include_router(problem_submissions.router, prefix="/api")
+app.include_router(community_test.router, prefix="/api")
 
 
 @app.get("/api/health")

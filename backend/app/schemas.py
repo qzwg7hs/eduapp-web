@@ -533,3 +533,116 @@ class ProblemSubmissionAdminOut(BaseModel):
 
 class ProblemSubmissionExportRequest(BaseModel):
     ids: List[UUID]
+
+
+# ── Community Test ──────────────────────────────────────────────────────────
+# A reusable, swappable timed-MCQ test slot (unlimited attempts, no points).
+# Mirrors ExamQuestionOut/ExamResultRow/ExamStatusOut's shape where sensible,
+# but the student-facing result/status schemas deliberately have NO field
+# for the correct answer anywhere -- that's the no-leak guarantee enforced
+# at the schema level (see routers/community_test.py), not just by the
+# frontend choosing not to render one.
+
+class CommunityTestQuestionOut(BaseModel):
+    number: int
+    question: str
+    options: List[str]
+
+class CommunityTestAnswerIn(BaseModel):
+    selected_option: Optional[int] = None
+
+class CommunityTestSubmitRequest(BaseModel):
+    answers: dict[str, CommunityTestAnswerIn]   # keyed by str(number)
+    terminated: bool = False
+
+class CommunityTestResultRow(BaseModel):
+    number: int
+    question: str
+    given_selected_option: Optional[int] = None
+    is_correct: bool
+
+class CommunityTestAttemptSummaryOut(BaseModel):
+    id: UUID
+    test_id: UUID
+    test_title: str
+    attempt_number: int
+    score: int
+    total: int
+    submitted_at: Optional[datetime] = None
+    terminated_early: bool = False
+
+class CommunityTestStatusOut(BaseModel):
+    status: str   # "no_active_test" | "not_started" | "in_progress" | "submitted"
+    test_id: Optional[UUID] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
+    time_limit_minutes: Optional[int] = None
+    attempts_count: Optional[int] = None
+    last_attempt: Optional[CommunityTestAttemptSummaryOut] = None
+    started_at: Optional[datetime] = None
+    questions: Optional[List[CommunityTestQuestionOut]] = None
+    results: Optional[List[CommunityTestResultRow]] = None
+    score: Optional[int] = None
+    total: Optional[int] = None
+    terminated_early: Optional[bool] = None
+
+# ── Community Test — admin ───────────────────────────────────────────────────
+
+class CommunityTestOut(BaseModel):
+    id: UUID
+    title_kz: Optional[str] = None
+    title_ru: Optional[str] = None
+    description_kz: Optional[str] = None
+    description_ru: Optional[str] = None
+    time_limit_minutes: int
+    is_active: bool
+    created_at: datetime
+    activated_at: Optional[datetime] = None
+    closed_at: Optional[datetime] = None
+    question_count: int = 0
+    attempt_count: int = 0
+
+class CommunityTestSettingsUpdate(BaseModel):
+    title_kz: Optional[str] = None
+    title_ru: Optional[str] = None
+    description_kz: Optional[str] = None
+    description_ru: Optional[str] = None
+    time_limit_minutes: Optional[int] = None
+
+class CommunityTestAdminAttemptRow(BaseModel):
+    id: UUID
+    test_id: UUID
+    test_title: str
+    student_id: UUID
+    student_name: str
+    student_surname: str
+    attempt_number: int
+    score: int
+    total: int
+    started_at: Optional[datetime] = None
+    submitted_at: Optional[datetime] = None
+    terminated_early: bool = False
+
+class CommunityTestAdminResultRow(BaseModel):
+    """Same shape as CommunityTestResultRow, but admin-only: DOES include
+    the correct answer -- the one deliberate exception to the no-leak rule,
+    since admin oversight of this feature is explicitly wanted."""
+    number: int
+    question: str
+    options: List[str]
+    given_selected_option: Optional[int] = None
+    correct_option: int
+    is_correct: bool
+
+class CommunityTestAdminAttemptDetailOut(BaseModel):
+    id: UUID
+    test_title: str
+    student_name: str
+    student_surname: str
+    attempt_number: int
+    score: int
+    total: int
+    started_at: Optional[datetime] = None
+    submitted_at: Optional[datetime] = None
+    terminated_early: bool = False
+    results: List[CommunityTestAdminResultRow]

@@ -53,6 +53,15 @@ interface DuelRow {
   points_earned:     number | null
 }
 
+interface CommunityTestAttemptRow {
+  test_title:        string
+  attempt_number:    number
+  score:             number
+  total:             number
+  terminated_early:  boolean
+  submitted_at:       string | null
+}
+
 interface StudentResults {
   student: {
     id: string; name: string; surname: string
@@ -66,6 +75,7 @@ interface StudentResults {
   test_bank_exams: TestBankExamRow[]
   pod_attempts:   PodAttemptRow[]
   duels:          DuelRow[]
+  community_test_attempts: CommunityTestAttemptRow[]
 }
 
 // ─── Edit modal state ─────────────────────────────────────────────────────────
@@ -401,7 +411,7 @@ function ResultsView({
   onClose: () => void
   t: (key: string, vars?: Record<string, string | number>) => string
 }) {
-  const { student, correct_count, total_attempts, results: rows, test_bank_exams: exams, pod_attempts: pods, duels } = results
+  const { student, correct_count, total_attempts, results: rows, test_bank_exams: exams, pod_attempts: pods, duels, community_test_attempts: communityAttempts } = results
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
 
   function toggleGroup(key: string) {
@@ -558,11 +568,35 @@ function ResultsView({
         </div>
       )}
 
+      {/* Community Test history — a reusable timed-MCQ slot, separate from
+          both Test Bank and the topic/subtopic tests below. Shown per
+          edition since the active question set can change over time. */}
+      {communityAttempts.length > 0 && (
+        <div className="mb-6">
+          <p className="text-xs font-bold text-muted uppercase tracking-wider mb-2">🧮 Community Test</p>
+          <div className="space-y-1.5">
+            {communityAttempts.map((a, i) => (
+              <div key={i} className="flex items-center justify-between px-3 py-2 rounded-lg text-sm" style={{ background: '#f9f6f1', border: '1px solid #f0e5d4' }}>
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-gray-900 font-medium truncate">{a.test_title} — #{a.attempt_number}</span>
+                  {a.terminated_early && (
+                    <span className="badge bg-danger-light text-danger text-xs flex-shrink-0">⚠ покинул страницу</span>
+                  )}
+                </div>
+                <span className="font-display font-semibold flex-shrink-0" style={{ color: a.score > 0 ? '#2a7d5f' : '#374151' }}>
+                  {a.score} / {a.total}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {rows.length > 0 && (
         <p className="text-xs font-bold text-muted uppercase tracking-wider mb-2">Тақырып тесттері / Тесты по темам</p>
       )}
       {rows.length === 0 ? (
-        exams.length === 0 && pods.length === 0 && duels.length === 0 && <p className="text-center text-muted py-8">Нет попыток</p>
+        exams.length === 0 && pods.length === 0 && duels.length === 0 && communityAttempts.length === 0 && <p className="text-center text-muted py-8">Нет попыток</p>
       ) : (
         <div className="space-y-3">
           {Object.entries(grouped).map(([topic, subs]) => (
