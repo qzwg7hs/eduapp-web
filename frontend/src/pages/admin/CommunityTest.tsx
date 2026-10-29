@@ -3,38 +3,41 @@ import api from '@/api/client'
 import { useI18n } from '@/contexts/I18nContext'
 import {
   CommunityTestAdmin, CommunityTestAdminAttemptRow, CommunityTestAdminAttemptDetail,
+  CommunityTestStudentOverview,
 } from '@/types'
 import { formatUtc5DateTime } from '@/lib/dailyTimer'
-import { CheckCircle2, XCircle, AlertTriangle, Pencil } from 'lucide-react'
+import { CheckCircle2, XCircle, AlertTriangle, Pencil, ChevronRight, ChevronLeft } from 'lucide-react'
 
 export default function AdminCommunityTest() {
   const { t } = useI18n()
   const [tests, setTests] = useState<CommunityTestAdmin[]>([])
-  const [selectedTestId, setSelectedTestId] = useState<string | null>(null)
-  const [attempts, setAttempts] = useState<CommunityTestAdminAttemptRow[]>([])
+  const [students, setStudents] = useState<CommunityTestStudentOverview[]>([])
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState<CommunityTestAdmin | null>(null)
   const [form, setForm] = useState({ title_kz: '', title_ru: '', description_kz: '', description_ru: '', time_limit_minutes: 60 })
   const [saving, setSaving] = useState(false)
+
+  // Student drill-down: click a student row -> their own attempt list;
+  // click one of those -> the full per-question detail (chosen vs correct).
+  const [drillStudent, setDrillStudent] = useState<CommunityTestStudentOverview | null>(null)
+  const [drillAttempts, setDrillAttempts] = useState<CommunityTestAdminAttemptRow[]>([])
+  const [loadingDrill, setLoadingDrill] = useState(false)
   const [detail, setDetail] = useState<CommunityTestAdminAttemptDetail | null>(null)
   const [loadingDetail, setLoadingDetail] = useState(false)
 
   async function loadTests() {
     const { data } = await api.get<CommunityTestAdmin[]>('/community-test/admin/tests')
     setTests(data)
-    if (!selectedTestId && data.length > 0) {
-      setSelectedTestId((data.find(x => x.is_active) ?? data[0]).id)
-    }
-    setLoading(false)
   }
 
-  useEffect(() => { loadTests() }, [])
+  async function loadStudents() {
+    const { data } = await api.get<CommunityTestStudentOverview[]>('/community-test/admin/students-overview')
+    setStudents(data)
+  }
 
   useEffect(() => {
-    if (!selectedTestId) { setAttempts([]); return }
-    api.get<CommunityTestAdminAttemptRow[]>('/community-test/admin/attempts', { params: { test_id: selectedTestId } })
-      .then(r => setAttempts(r.data))
-  }, [selectedTestId])
+    Promise.all([loadTests(), loadStudents()]).finally(() => setLoading(false))
+  }, [])
 
   function openEdit(test: CommunityTestAdmin) {
     setEditing(test)
@@ -63,6 +66,15 @@ export default function AdminCommunityTest() {
     await loadTests()
   }
 
+  async function openStudent(s: CommunityTestStudentOverview) {
+    setDrillStudent(s)
+    setLoadingDrill(true)
+    setDrillAttempts([])
+    const { data } = await api.get<CommunityTestAdminAttemptRow[]>('/community-test/admin/attempts', { params: { student_id: s.student_id } })
+    setDrillAttempts(data)
+    setLoadingDrill(false)
+  }
+
   async function openDetail(attemptId: string) {
     setLoadingDetail(true)
     setDetail(null)
@@ -85,7 +97,7 @@ export default function AdminCommunityTest() {
       ) : (
         <>
           <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-3">{t('admin.communityTest.editions')}</p>
-          <div className="space-y-3 mb-6">
+          <div className="space-y-3 mb-8">
             {tests.map(test => (
               <div key={test.id} className="card">
                 <div className="flex items-center justify-between gap-3">
@@ -106,12 +118,6 @@ export default function AdminCommunityTest() {
                       {t('admin.communityTest.meta', { q: test.question_count, a: test.attempt_count, m: test.time_limit_minutes })}
                     </p>
                   </div>
-                  <button
-                    className={`px-3 py-2 rounded-xl text-sm font-semibold flex-shrink-0 ${selectedTestId === test.id ? 'bg-primary-light text-primary' : 'bg-bg text-muted hover:bg-gray-100'}`}
-                    onClick={() => setSelectedTestId(test.id)}
-                  >
-                    {t('admin.communityTest.view_attempts')}
-                  </button>
                 </div>
                 <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border">
                   <button className="text-sm text-primary font-medium flex items-center gap-1" onClick={() => openEdit(test)}>
@@ -126,39 +132,33 @@ export default function AdminCommunityTest() {
               </div>
             ))}
           </div>
-
-          <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-3">{t('admin.communityTest.attempts_for_selected')}</p>
-          {attempts.length === 0 ? (
-            <p className="text-center text-muted py-10 text-sm">{t('admin.communityTest.no_attempts')}</p>
-          ) : (
-            <div className="space-y-2">
-              {attempts.map(a => (
-                <button
-                  key={a.id}
-                  onClick={() => openDetail(a.id)}
-                  className="w-full flex items-center gap-3 px-4 py-3 bg-surface rounded-2xl border border-border hover:bg-bg transition-colors text-left"
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 truncate">
-                      {a.student_name} {a.student_surname} — {t('communityTest.attempt_label', { n: a.attempt_number })}
-                    </p>
-                    <p className="text-xs text-muted truncate">
-                      {a.submitted_at ? formatUtc5DateTime(a.submitted_at) : ''}
-                      {a.terminated_early && (
-                        <span className="inline-flex items-center gap-1 ml-2 text-danger">
-                          <AlertTriangle className="w-3 h-3" />{t('communityTest.terminated_badge')}
-                        </span>
-                      )}
-                    </p>
-                  </div>
-                  <span className="text-sm font-display font-semibold flex-shrink-0" style={{ color: a.score > 0 ? '#2a7d5f' : '#374151' }}>
-                    {a.score}/{a.total}
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
         </>
+      )}
+
+      <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-3">
+        {t('admin.communityTest.students_heading', { n: students.length })}
+      </p>
+      {students.length === 0 ? (
+        <p className="text-center text-muted py-10 text-sm">{t('admin.communityTest.no_students')}</p>
+      ) : (
+        <div className="space-y-2">
+          {students.map(s => (
+            <button
+              key={s.student_id}
+              onClick={() => openStudent(s)}
+              className="w-full flex items-center gap-3 px-4 py-3 bg-surface rounded-2xl border border-border hover:bg-bg transition-colors text-left"
+            >
+              <span className="flex-1 text-sm font-semibold text-gray-900 truncate">{s.name} {s.surname}</span>
+              <span
+                className="text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0"
+                style={s.attempt_count > 0 ? { background: '#e7f2ec', color: '#2a7d5f' } : { background: '#f3f4f6', color: '#9ca3af' }}
+              >
+                {t('admin.communityTest.attempt_count', { n: s.attempt_count })}
+              </span>
+              <ChevronRight className="w-4 h-4 text-muted flex-shrink-0" />
+            </button>
+          ))}
+        </div>
       )}
 
       {/* ── Settings modal ───────────────────────────────────────────────── */}
@@ -202,9 +202,56 @@ export default function AdminCommunityTest() {
         </div>
       )}
 
-      {/* ── Attempt detail modal ─────────────────────────────────────────── */}
-      {(detail || loadingDetail) && (
+      {/* ── Student drill-down: their own attempt list ──────────────────────── */}
+      {drillStudent && (
         <div className="fixed inset-0 bg-black/50 flex items-end lg:items-center justify-center z-50 p-4">
+          <div className="bg-surface rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
+            <div className="flex items-start justify-between mb-5">
+              <h2 className="text-xl font-bold text-gray-900">{drillStudent.name} {drillStudent.surname}</h2>
+              <button onClick={() => setDrillStudent(null)} className="text-muted text-xl leading-none ml-4">✕</button>
+            </div>
+            {loadingDrill ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+              </div>
+            ) : drillAttempts.length === 0 ? (
+              <p className="text-center text-muted py-8">{t('admin.communityTest.no_attempts')}</p>
+            ) : (
+              <div className="space-y-2">
+                {drillAttempts.map(a => (
+                  <button
+                    key={a.id}
+                    onClick={() => openDetail(a.id)}
+                    className="w-full flex items-center gap-3 px-4 py-3 bg-bg rounded-2xl border border-border hover:bg-gray-100 transition-colors text-left"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 truncate">
+                        {a.test_title} — {t('communityTest.attempt_label', { n: a.attempt_number })}
+                      </p>
+                      <p className="text-xs text-muted truncate">
+                        {a.submitted_at ? formatUtc5DateTime(a.submitted_at) : ''}
+                        {a.terminated_early && (
+                          <span className="inline-flex items-center gap-1 ml-2 text-danger">
+                            <AlertTriangle className="w-3 h-3" />{t('communityTest.terminated_badge')}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                    <span className="text-sm font-display font-semibold flex-shrink-0" style={{ color: a.score > 0 ? '#2a7d5f' : '#374151' }}>
+                      {a.score}/{a.total}
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-muted flex-shrink-0" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Attempt detail modal (stacks on top of the student drill-down) ──── */}
+      {(detail || loadingDetail) && (
+        <div className="fixed inset-0 bg-black/60 flex items-end lg:items-center justify-center z-50 p-4">
           <div className="bg-surface rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
             {loadingDetail && (
               <div className="flex justify-center py-12">
@@ -215,12 +262,17 @@ export default function AdminCommunityTest() {
               <>
                 <div className="flex items-start justify-between mb-5">
                   <div>
+                    <button
+                      onClick={() => setDetail(null)}
+                      className="text-sm text-muted font-medium flex items-center gap-1 mb-2 hover:text-gray-700"
+                    >
+                      <ChevronLeft className="w-4 h-4" /> {t('admin.communityTest.back_to_attempts')}
+                    </button>
                     <h2 className="text-xl font-bold text-gray-900">{detail.student_name} {detail.student_surname}</h2>
                     <p className="text-sm text-muted mt-0.5">
                       {detail.test_title} — {t('communityTest.attempt_label', { n: detail.attempt_number })}
                     </p>
                   </div>
-                  <button onClick={() => setDetail(null)} className="text-muted text-xl leading-none ml-4">✕</button>
                 </div>
                 <div className="rounded-xl px-4 py-3 mb-5 text-center" style={{ background: '#f9f6f1', border: '1px solid #f0e5d4' }}>
                   <p className="text-xl font-display font-bold" style={{ color: detail.score > 0 ? '#2a7d5f' : '#374151' }}>

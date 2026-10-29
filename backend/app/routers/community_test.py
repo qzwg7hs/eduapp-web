@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from ..database import get_db
@@ -12,6 +13,7 @@ from ..schemas import (
     CommunityTestStatusOut, CommunityTestAttemptSummaryOut,
     CommunityTestOut, CommunityTestSettingsUpdate,
     CommunityTestAdminAttemptRow, CommunityTestAdminAttemptDetailOut, CommunityTestAdminResultRow,
+    CommunityTestStudentOverviewRow,
 )
 from ..auth import require_admin, get_current_user
 
@@ -296,6 +298,38 @@ def admin_list_tests(db: Session = Depends(get_db), _=Depends(require_admin)):
             question_count=qcount, attempt_count=acount,
         ))
     return out
+
+
+@router.get("/admin/students-overview", response_model=list[CommunityTestStudentOverviewRow])
+def admin_students_overview(db: Session = Depends(get_db), _=Depends(require_admin)):
+    """Quick roster for the admin page: every real, eligible student (no
+    decorative/fake leaderboard-filler accounts, no one with
+    community_test_disabled) with just their total attempt count across
+    every edition -- the admin drills into one student's full attempt
+    list/detail via GET /admin/attempts?student_id=."""
+    students = (
+        db.query(Profile)
+        .filter(
+            Profile.role == "student",
+            Profile.is_decorative == False,  # noqa: E712
+            Profile.community_test_disabled == False,  # noqa: E712
+        )
+        .order_by(Profile.surname)
+        .all()
+    )
+    counts = dict(
+        db.query(CommunityTestAttempt.student_id, func.count(CommunityTestAttempt.id))
+        .filter(CommunityTestAttempt.submitted_at.isnot(None))
+        .group_by(CommunityTestAttempt.student_id)
+        .all()
+    )
+    return [
+        CommunityTestStudentOverviewRow(
+            student_id=s.id, name=s.name, surname=s.surname,
+            attempt_count=counts.get(s.id, 0),
+        )
+        for s in students
+    ]
 
 
 @router.post("/admin/tests/{test_id}/settings", response_model=CommunityTestOut)

@@ -573,7 +573,7 @@ function ResultsView({
           edition since the active question set can change over time. */}
       {communityAttempts.length > 0 && (
         <div className="mb-6">
-          <p className="text-xs font-bold text-muted uppercase tracking-wider mb-2">🧮 Community Test</p>
+          <p className="text-xs font-bold text-muted uppercase tracking-wider mb-2">🧮 Оқушылар тесті / Тест учеников</p>
           <div className="space-y-1.5">
             {communityAttempts.map((a, i) => (
               <div key={i} className="flex items-center justify-between px-3 py-2 rounded-lg text-sm" style={{ background: '#f9f6f1', border: '1px solid #f0e5d4' }}>

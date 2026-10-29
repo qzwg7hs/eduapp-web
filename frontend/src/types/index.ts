@@ -407,6 +407,13 @@ export interface CommunityTestAdmin {
   attempt_count: number;
 }
 
+export interface CommunityTestStudentOverview {
+  student_id: string;
+  name: string;
+  surname: string;
+  attempt_count: number;
+}
+
 export interface CommunityTestAdminAttemptRow {
   id: string;
   test_id: string;

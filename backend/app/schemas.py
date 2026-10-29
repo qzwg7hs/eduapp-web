@@ -615,6 +615,16 @@ class CommunityTestSettingsUpdate(BaseModel):
     description_ru: Optional[str] = None
     time_limit_minutes: Optional[int] = None
 
+class CommunityTestStudentOverviewRow(BaseModel):
+    """One row per eligible real student (excludes decorative/fake accounts
+    and anyone with community_test_disabled) -- the admin's quick roster
+    view, attempt count only. Full attempts/detail are a drill-down, fetched
+    separately via the existing admin/attempts?student_id= endpoint."""
+    student_id: UUID
+    name: str
+    surname: str
+    attempt_count: int
+
 class CommunityTestAdminAttemptRow(BaseModel):
     id: UUID
     test_id: UUID
