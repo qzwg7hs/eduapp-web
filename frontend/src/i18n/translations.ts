@@ -233,11 +233,15 @@ export const translations: Record<Locale, Record<string, string>> = {
     'duel.err_opponent_not_found': 'Студент не найден.',
     'duel.err_not_active': 'Эта дуэль уже недоступна.',
     'duel.err_generic': 'Что-то пошло не так. Попробуйте ещё раз.',
-    // Community Test (home card)
+    // Community Test (home card + announcement)
     'home.community_test_sub_new': 'Тест, составленный учениками — попробуй свои силы',
     'home.community_test_sub_attempted': 'Последний результат: {score} из {total}',
     'home.community_test_cta_start': 'Начать →',
     'home.community_test_cta_again': 'Попробовать снова →',
+    'home.community_test_announcement_eyebrow': 'Тест от учеников',
+    'home.community_test_announcement_title': 'Тест, составленный учениками',
+    'home.community_test_announcement_body': 'Задачи придумали сами ученики! Лимит времени — 60 минут, попыток можно сделать сколько угодно. Пройти ещё раз или посмотреть свои результаты можно в любой момент — ищи карточку с 🧮 на главной странице.',
+    'home.community_test_announcement_cta': 'Попробовать →',
     // Submit a problem (student)
     'home.submit_problem_title': 'Придумай свою задачу',
     'home.submit_problem_sub': 'Отправь идею — учитель посмотрит',
@@ -874,11 +878,15 @@ export const translations: Record<Locale, Record<string, string>> = {
     'duel.err_opponent_not_found': 'Студент табылмады.',
     'duel.err_not_active': 'Бұл дуэль енді қолжетімді емес.',
     'duel.err_generic': 'Бірдеңе дұрыс болмады. Қайталап көріңіз.',
-    // Community Test (home card)
+    // Community Test (home card + announcement)
     'home.community_test_sub_new': 'Оқушылар құрастырған тест — күшіңді сынап көр',
     'home.community_test_sub_attempted': 'Соңғы нәтиже: {total} ішінен {score}',
     'home.community_test_cta_start': 'Бастау →',
     'home.community_test_cta_again': 'Қайта көру →',
+    'home.community_test_announcement_eyebrow': 'Оқушылардың тесті',
+    'home.community_test_announcement_title': 'Оқушылар құрастырған тест',
+    'home.community_test_announcement_body': 'Есептерді оқушылардың өздері ойлап тапты! Уақыт шектеуі — 60 минут, әрекет санына шек жоқ. Қайта тапсыру немесе нәтижелерді көру кез келген уақытта мүмкін — басты беттегі 🧮 белгісі бар карточканы тауып ал.',
+    'home.community_test_announcement_cta': 'Көру →',
     // Submit a problem (student)
     'home.submit_problem_title': 'Өз есебіңді ойлап тап',
     'home.submit_problem_sub': 'Идеяңды жібер — мұғалім қарайды',

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Navigate } from 'react-router-dom'
 import api from '@/api/client'
+import { useAuth } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
 import { CommunityTestAttemptSummary } from '@/types'
 import { formatUtc5DateTime } from '@/lib/dailyTimer'
@@ -8,16 +9,20 @@ import { AlertTriangle, ChevronRight } from 'lucide-react'
 
 export default function StudentCommunityTestHistory() {
   const navigate = useNavigate()
+  const { profile } = useAuth()
   const { t, locale } = useI18n()
   const [loading, setLoading] = useState(true)
   const [attempts, setAttempts] = useState<CommunityTestAttemptSummary[]>([])
 
   useEffect(() => {
+    if (profile?.community_test_disabled) return
     setLoading(true)
     api.get<CommunityTestAttemptSummary[]>('/community-test/attempts', { params: { language: locale } })
       .then(r => setAttempts(r.data))
       .finally(() => setLoading(false))
-  }, [locale])
+  }, [locale, profile?.community_test_disabled])
+
+  if (profile?.community_test_disabled) return <Navigate to="/student" replace />
 
   if (loading) {
     return (

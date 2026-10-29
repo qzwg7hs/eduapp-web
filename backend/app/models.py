@@ -62,6 +62,11 @@ class Profile(Base):
     # could reasonably be opted out of one feature and not the other.
     submission_disabled = Column(Boolean, default=False, server_default='false')
 
+    # Same idea again, for Community Test (see routers/community_test.py) —
+    # a per-student opt-out, set directly via DB update (no admin UI toggle
+    # yet, same as duel_disabled).
+    community_test_disabled = Column(Boolean, default=False, server_default='false')
+
 
 class Topic(Base):
     __tablename__ = "topics"

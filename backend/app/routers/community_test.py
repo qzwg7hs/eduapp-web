@@ -13,9 +13,19 @@ from ..schemas import (
     CommunityTestOut, CommunityTestSettingsUpdate,
     CommunityTestAdminAttemptRow, CommunityTestAdminAttemptDetailOut, CommunityTestAdminResultRow,
 )
-from ..auth import require_admin, require_student
+from ..auth import require_admin, get_current_user
 
 router = APIRouter(prefix="/community-test", tags=["community-test"])
+
+
+def require_community_test_access(current_user: Profile = Depends(get_current_user)) -> Profile:
+    """Same as require_student, plus the (rare, admin-set) per-student
+    opt-out -- same pattern as require_duel_access/require_submission_access."""
+    if current_user.role != "student":
+        raise HTTPException(status_code=403, detail="Student access required")
+    if current_user.community_test_disabled:
+        raise HTTPException(status_code=403, detail="community_test_disabled")
+    return current_user
 
 
 def _get_active_test(db: Session) -> CommunityTest | None:
@@ -86,7 +96,7 @@ def _in_progress_attempt(db: Session, student_id: UUID) -> CommunityTestAttempt 
 
 
 @router.get("/status", response_model=CommunityTestStatusOut)
-def get_status(language: str = "kz", db: Session = Depends(get_db), current_user: Profile = Depends(require_student)):
+def get_status(language: str = "kz", db: Session = Depends(get_db), current_user: Profile = Depends(require_community_test_access)):
     in_progress = _in_progress_attempt(db, current_user.id)
 
     if in_progress:
@@ -147,7 +157,7 @@ def get_status(language: str = "kz", db: Session = Depends(get_db), current_user
 
 
 @router.post("/start", response_model=CommunityTestStatusOut)
-def start_attempt(language: str = "kz", db: Session = Depends(get_db), current_user: Profile = Depends(require_student)):
+def start_attempt(language: str = "kz", db: Session = Depends(get_db), current_user: Profile = Depends(require_community_test_access)):
     existing = _in_progress_attempt(db, current_user.id)
     if not existing:
         test = _get_active_test(db)
@@ -169,7 +179,7 @@ def start_attempt(language: str = "kz", db: Session = Depends(get_db), current_u
 @router.post("/submit", response_model=CommunityTestStatusOut)
 def submit_attempt(
     body: CommunityTestSubmitRequest, language: str = "kz",
-    db: Session = Depends(get_db), current_user: Profile = Depends(require_student),
+    db: Session = Depends(get_db), current_user: Profile = Depends(require_community_test_access),
 ):
     attempt = _in_progress_attempt(db, current_user.id)
     if not attempt:
@@ -212,7 +222,7 @@ def submit_attempt(
 
 
 @router.get("/attempts", response_model=list[CommunityTestAttemptSummaryOut])
-def list_my_attempts(language: str = "kz", db: Session = Depends(get_db), current_user: Profile = Depends(require_student)):
+def list_my_attempts(language: str = "kz", db: Session = Depends(get_db), current_user: Profile = Depends(require_community_test_access)):
     attempts = (
         db.query(CommunityTestAttempt)
         .filter(CommunityTestAttempt.student_id == current_user.id, CommunityTestAttempt.submitted_at.isnot(None))
@@ -256,7 +266,7 @@ def _submitted_response(db: Session, attempt: CommunityTestAttempt, test: Commun
 
 
 @router.get("/attempts/{attempt_id}", response_model=CommunityTestStatusOut)
-def get_my_attempt_detail(attempt_id: UUID, language: str = "kz", db: Session = Depends(get_db), current_user: Profile = Depends(require_student)):
+def get_my_attempt_detail(attempt_id: UUID, language: str = "kz", db: Session = Depends(get_db), current_user: Profile = Depends(require_community_test_access)):
     attempt = db.query(CommunityTestAttempt).filter(CommunityTestAttempt.id == attempt_id).first()
     if not attempt or attempt.student_id != current_user.id:
         raise HTTPException(404, "Attempt not found")

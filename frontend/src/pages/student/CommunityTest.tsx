@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Navigate } from 'react-router-dom'
 import api from '@/api/client'
+import { useAuth } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
 import { CommunityTestStatus, CommunityTestQuestion } from '@/types'
 import LatexText from '@/components/LatexText'
@@ -17,6 +18,7 @@ function fmtTime(totalSec: number) {
 
 export default function StudentCommunityTest() {
   const navigate = useNavigate()
+  const { profile } = useAuth()
   const { t, locale } = useI18n()
 
   const [loading, setLoading] = useState(true)
@@ -38,13 +40,19 @@ export default function StudentCommunityTest() {
     setLoading(true)
     const { data } = await api.get<CommunityTestStatus>('/community-test/status', { params: { language: locale } })
     setStatus(data)
-    setAnswers({})
-    setCurIdx(0)
+    // Only reset in-memory answers/position on a genuinely fresh load -- a
+    // locale toggle mid-attempt re-runs this same load() (see the effect
+    // below) and must NOT wipe what's already been picked, just refresh the
+    // display text/options to the new language.
+    if (data.status !== 'in_progress') {
+      setAnswers({})
+      setCurIdx(0)
+    }
     inProgressRef.current = data.status === 'in_progress'
     setLoading(false)
   }
 
-  useEffect(() => { load() }, [locale])
+  useEffect(() => { if (!profile?.community_test_disabled) load() }, [locale, profile?.community_test_disabled])
 
   async function submitAttempt(terminatedFlag: boolean) {
     if (submittingRef.current) return
@@ -119,6 +127,8 @@ export default function StudentCommunityTest() {
     inProgressRef.current = data.status === 'in_progress'
     setLoading(false)
   }
+
+  if (profile?.community_test_disabled) return <Navigate to="/student" replace />
 
   // ─── Terminated overlay ─────────────────────────────────────────────────
 

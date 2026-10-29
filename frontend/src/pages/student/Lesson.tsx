@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import api from '@/api/client'
 import { useAuth } from '@/contexts/AuthContext'
@@ -65,6 +65,11 @@ export default function StudentLesson() {
   // Anti-cheat state
   const [cheatDetected, setCheatDetected] = useState(false)
 
+  // Carry an in-progress (unsubmitted) pick across a language switch,
+  // matched by pair_key -- consumed once by the pre-fill effect below, right
+  // after loadAll() positions phase/idx onto the matching problem.
+  const pendingCarryRef = useRef<{ problemId: string; picked: number[]; open: string } | null>(null)
+
   const inTestPhase = phase === 'problems' || phase === 'hard_problems'
 
   // Anti-cheat: detect tab switch or window blur during test.
@@ -95,7 +100,16 @@ export default function StudentLesson() {
     loadAll()
   }, [id])
 
-  useLanguageSwitchRedirect('lesson', id, (newId) => `/student/lesson/${newId}`, location.state)
+  // Build the carry-over payload from whatever's currently picked (but not
+  // yet submitted/confirmed) on the active problem, so a language switch
+  // mid-pick doesn't lose it.
+  const curProblemForCarry = currentProblem()
+  const carryOver = (curProblemForCarry && !confirmed && !bestAttempts[curProblemForCarry.id]?.is_correct
+    && (selectedOpts.length > 0 || openInput.trim() !== ''))
+    ? { pairKey: curProblemForCarry.pair_key, picked: selectedOpts, open: openInput }
+    : undefined
+
+  useLanguageSwitchRedirect('lesson', id, (newId) => `/student/lesson/${newId}`, { ...(location.state as any), carryOver })
 
   async function loadAll() {
     const [lessonRes, problemsRes, bestRes, progressRes] = await Promise.all([
@@ -110,13 +124,40 @@ export default function StudentLesson() {
     // (level-gated, correct/incorrect/skipped coloring) — the lesson's own
     // embedded quiz only ever handles problems with no level assigned.
     const unleveled = allProblems.filter(p => !p.level)
-    setProblems(unleveled.filter(p => !p.is_hard && p.is_published))
-    setHardProblems(unleveled.filter(p => p.is_hard && p.is_published))
+    const probs = unleveled.filter(p => !p.is_hard && p.is_published)
+    const hardProbs = unleveled.filter(p => p.is_hard && p.is_published)
+    setProblems(probs)
+    setHardProblems(hardProbs)
     setHasLeveledTest(allProblems.some(p => p.level && p.is_published))
     const map: Record<string, ProblemAttempt> = {}
     bestRes.data.forEach(a => { map[a.problem_id] = a })
     setBestAttempts(map)
     setIsAlreadyCompleted(progressRes.data.some((p: any) => p.subsubtopic_id === id && p.is_completed))
+
+    // Carry over an in-progress (unsubmitted) pick across a language switch
+    // -- matched by pair_key since the id itself is language-specific.
+    // Only applies onto a problem with no real server-confirmed correct
+    // attempt yet. Position (phase/idx) is set here; the actual
+    // selectedOpts/openInput values are applied by the pre-fill effect
+    // below once it sees this ref, so they're not immediately stomped by
+    // that same effect's normal bestAttempts-based reset.
+    const carry = (location.state as any)?.carryOver as
+      { pairKey?: string | null; picked: number[]; open: string } | undefined
+    if (carry?.pairKey) {
+      let match = probs.find(p => p.pair_key === carry.pairKey)
+      let targetPhase: Phase = 'problems'
+      if (!match) { match = hardProbs.find(p => p.pair_key === carry.pairKey); targetPhase = 'hard_problems' }
+      if (match && !map[match.id]?.is_correct) {
+        const list = targetPhase === 'problems' ? probs : hardProbs
+        const idxInList = list.findIndex(p => p.id === match!.id)
+        if (idxInList >= 0) {
+          pendingCarryRef.current = { problemId: match.id, picked: carry.picked, open: carry.open }
+          setPhase(targetPhase)
+          setIdx(idxInList)
+        }
+      }
+    }
+
     setLoading(false)
   }
 
@@ -132,6 +173,14 @@ export default function StudentLesson() {
   useEffect(() => {
     const p = currentProblem()
     if (!p) return
+    const pending = pendingCarryRef.current
+    if (pending && pending.problemId === p.id) {
+      pendingCarryRef.current = null
+      setSelectedOpts(pending.picked)
+      setOpenInput(pending.open)
+      setConfirmed(false); setWasWrong(false); setHintOpen(false); setShowWrongFlash(false); setCheatFlagged(false)
+      return
+    }
     const attempt = bestAttempts[p.id]
     if (attempt && attempt.is_correct) {
       setConfirmed(true)

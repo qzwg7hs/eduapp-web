@@ -31,6 +31,7 @@ class ProfileOut(BaseModel):
     equipped_avatar_icon: Optional[str] = None
     duel_disabled: bool = False
     submission_disabled: bool = False
+    community_test_disabled: bool = False
 
     class Config:
         from_attributes = True
@@ -179,6 +180,11 @@ class ProblemOut(BaseModel):
     answer_text: Optional[str] = None
     source_file_url: Optional[str] = None
     language: str = "kz"
+    # Links this problem to its kz/ru counterpart row (same value on both
+    # sides) -- exposed so the frontend can carry an in-progress, not-yet-
+    # submitted pick across a language switch (the id itself changes when
+    # the language toggle navigates to the counterpart's own route).
+    pair_key: Optional[UUID] = None
 
     class Config:
         from_attributes = True

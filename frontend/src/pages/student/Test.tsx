@@ -60,6 +60,31 @@ export default function StudentTest() {
     }
   }, [unlockedLevels, id])
 
+  // ─── Derived ─────────────────────────────────────────────────────────────
+  // (computed before the load effect/language-switch hook below, since both
+  // need the CURRENT problem/qs to build a carry-over payload)
+
+  const levelOrder = useMemo(
+    () => [...new Set(problems.map(p => p.level ?? ''))].sort(),
+    [problems],
+  )
+
+  const levelGroups = useMemo(() => {
+    const groups: Record<string, Problem[]> = {}
+    problems.forEach(p => {
+      const lvl = p.level ?? ''
+      if (!groups[lvl]) groups[lvl] = []
+      groups[lvl].push(p)
+    })
+    return groups
+  }, [problems])
+
+  const showLevelTabs = levelOrder.length > 1
+
+  const curLevelProblems = levelGroups[activeLevel] ?? []
+  const problem = curLevelProblems[curIdx] ?? null
+  const qs      = problem ? (qStates[problem.id] ?? fresh()) : null
+
   // ─── Load ────────────────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -67,6 +92,9 @@ export default function StudentTest() {
     setLoading(true)
     setCurIdx(0)
     setCheatBanner(false)
+
+    const carry = (location.state as any)?.carryOver as
+      { pairKey?: string | null; picked: number[]; open: string } | undefined
 
     Promise.all([
       api.get<Problem[]>(`/problems/lesson/${id}`),
@@ -99,6 +127,19 @@ export default function StudentTest() {
           init[p.id] = fresh()
         }
       })
+
+      // Carry over an in-progress (unsubmitted) pick across a language
+      // switch -- matched by pair_key since the id itself is language-
+      // specific. Only applies onto a problem that's still otherwise idle
+      // (never overrides a real correct/wrong/skipped server state).
+      let carryMatch: Problem | undefined
+      if (carry?.pairKey) {
+        carryMatch = pub.find(p => p.pair_key === carry.pairKey)
+        if (carryMatch && init[carryMatch.id]?.status === 'idle') {
+          init[carryMatch.id] = { ...init[carryMatch.id], picked: carry.picked, open: carry.open }
+        }
+      }
+
       setQStates(init)
 
       // Compute levels
@@ -135,34 +176,29 @@ export default function StudentTest() {
       }
       setUnlockedLevels(unlocked)
 
+      // Land back on the exact carried-over problem (same level + index),
+      // overriding the default first-level/first-index position set above.
+      if (carryMatch) {
+        const lvl = carryMatch.level ?? ''
+        const idxInLevel = (groups[lvl] ?? []).findIndex(p => p.id === carryMatch!.id)
+        if (idxInLevel >= 0) {
+          setActiveLevel(lvl)
+          setCurIdx(idxInLevel)
+        }
+      }
+
       setLoading(false)
     })
   }, [id])
 
-  useLanguageSwitchRedirect('lesson', id, (newId) => `/student/test/${newId}`, state)
+  // Build the carry-over payload from whatever's currently picked (but not
+  // yet submitted) on the active problem, so useLanguageSwitchRedirect can
+  // thread it through the navigation to the counterpart lesson's test page.
+  const carryOver = (problem && qs && qs.status === 'idle' && (qs.picked.length > 0 || qs.open.trim() !== ''))
+    ? { pairKey: problem.pair_key, picked: qs.picked, open: qs.open }
+    : undefined
 
-  // ─── Derived ─────────────────────────────────────────────────────────────
-
-  const levelOrder = useMemo(
-    () => [...new Set(problems.map(p => p.level ?? ''))].sort(),
-    [problems],
-  )
-
-  const levelGroups = useMemo(() => {
-    const groups: Record<string, Problem[]> = {}
-    problems.forEach(p => {
-      const lvl = p.level ?? ''
-      if (!groups[lvl]) groups[lvl] = []
-      groups[lvl].push(p)
-    })
-    return groups
-  }, [problems])
-
-  const showLevelTabs = levelOrder.length > 1
-
-  const curLevelProblems = levelGroups[activeLevel] ?? []
-  const problem = curLevelProblems[curIdx] ?? null
-  const qs      = problem ? (qStates[problem.id] ?? fresh()) : null
+  useLanguageSwitchRedirect('lesson', id, (newId) => `/student/test/${newId}`, { ...state, carryOver })
 
   // ─── Check level unlock after state change ────────────────────────────────
 

@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
 import { TopicInTree, ContinueProgress, ExamStatusOut, PodStatusOut, MissionOut, CommunityTestStatus } from '@/types'
 import { secondsUntilNextUtcHour, formatCountdown } from '@/lib/dailyTimer'
-import { Swords, Lightbulb, X } from 'lucide-react'
+import { Swords, Lightbulb, X, Calculator } from 'lucide-react'
 
 const TESTBANK_RESET_UTC_HOUR = 19 // 00:00 UTC+5
 const POD_RESET_UTC_HOUR = 19       // 00:00 UTC+5
@@ -19,6 +19,7 @@ const POD_RESET_UTC_HOUR = 19       // 00:00 UTC+5
 // dismissing one never affects the other.
 const DUEL_ANNOUNCEMENT_KEY = 'eduapp_duel_announcement_dismissed'
 const SUBMISSION_ANNOUNCEMENT_KEY = 'eduapp_submission_announcement_dismissed'
+const COMMUNITY_TEST_ANNOUNCEMENT_KEY = 'eduapp_community_test_announcement_dismissed'
 
 // Accent palette cycles per topic index
 const ACCENTS = [
@@ -44,16 +45,19 @@ export default function StudentHome() {
   const [missions, setMissions] = useState<MissionOut[]>([])
   const [showDuelAnnouncement, setShowDuelAnnouncement] = useState(false)
   const [showSubmissionAnnouncement, setShowSubmissionAnnouncement] = useState(false)
+  const [showCommunityTestAnnouncement, setShowCommunityTestAnnouncement] = useState(false)
   const [communityTest, setCommunityTest] = useState<CommunityTestStatus | null>(null)
 
   useEffect(() => {
     try {
       setShowDuelAnnouncement(localStorage.getItem(DUEL_ANNOUNCEMENT_KEY) !== 'true')
       setShowSubmissionAnnouncement(localStorage.getItem(SUBMISSION_ANNOUNCEMENT_KEY) !== 'true')
+      setShowCommunityTestAnnouncement(localStorage.getItem(COMMUNITY_TEST_ANNOUNCEMENT_KEY) !== 'true')
     } catch {
-      // storage blocked/unavailable — default to showing both
+      // storage blocked/unavailable — default to showing all
       setShowDuelAnnouncement(true)
       setShowSubmissionAnnouncement(true)
+      setShowCommunityTestAnnouncement(true)
     }
   }, [])
 
@@ -65,6 +69,11 @@ export default function StudentHome() {
   function dismissSubmissionAnnouncement() {
     setShowSubmissionAnnouncement(false)
     try { localStorage.setItem(SUBMISSION_ANNOUNCEMENT_KEY, 'true') } catch { /* per-viewer convenience only */ }
+  }
+
+  function dismissCommunityTestAnnouncement() {
+    setShowCommunityTestAnnouncement(false)
+    try { localStorage.setItem(COMMUNITY_TEST_ANNOUNCEMENT_KEY, 'true') } catch { /* per-viewer convenience only */ }
   }
 
   async function load() {
@@ -104,10 +113,11 @@ export default function StudentHome() {
   // on its own once the admin has no active edition, and reappears when
   // they publish a new one. See CommunityTestStatus.status for the states.
   useEffect(() => {
+    if (profile?.community_test_disabled) { setCommunityTest(null); return }
     api.get<CommunityTestStatus>('/community-test/status', { params: { language: locale } })
       .then(r => setCommunityTest(r.data))
       .catch(() => setCommunityTest(null))
-  }, [locale])
+  }, [locale, profile?.community_test_disabled])
 
   useEffect(() => {
     api.get<PodStatusOut>('/pod/today', { params: { language: locale } })
@@ -173,6 +183,49 @@ export default function StudentHome() {
           </div>
         )}
       </div>
+
+      {/* Community Test announcement — same dismissible-banner pattern as
+          Duel/Submission below, but only shown while an edition is actually
+          active (communityTest is null/no_active_test otherwise, including
+          for a student with community_test_disabled). Mentions the
+          permanent card further down the page so dismissing this banner
+          never means losing access — that card is the lasting "take it
+          again / see your results anytime" entry point. Shown first since
+          it's the most recent launch. */}
+      {communityTest && communityTest.status !== 'no_active_test' && showCommunityTestAnnouncement && (
+        <div
+          className="relative w-full rounded-2xl p-5 mb-5 overflow-hidden"
+          style={{
+            background: 'linear-gradient(120deg, #2563eb 0%, #60a5fa 100%)',
+            boxShadow: '0 12px 28px -10px rgba(37,99,235,0.5)',
+          }}
+        >
+          <button
+            onClick={dismissCommunityTestAnnouncement}
+            aria-label={t('home.duel_announcement_dismiss')}
+            className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+          <button onClick={() => navigate('/student/community-test')} className="w-full text-left active:scale-[0.99] transition-all">
+            <div className="flex items-center gap-2 mb-2 pr-8">
+              <Calculator className="w-5 h-5 text-white flex-shrink-0" />
+              <span className="text-xs font-bold uppercase tracking-widest text-white/80">
+                {t('home.community_test_announcement_eyebrow')}
+              </span>
+            </div>
+            <p className="font-display font-semibold text-lg text-white leading-snug mb-1.5 pr-8">
+              {communityTest.title || t('home.community_test_announcement_title')}
+            </p>
+            <p className="text-sm text-white/90 leading-relaxed mb-3">
+              {t('home.community_test_announcement_body')}
+            </p>
+            <span className="inline-block bg-white text-[#2563eb] font-display font-semibold text-sm px-4 py-1.5 rounded-xl">
+              {t('home.community_test_announcement_cta')}
+            </span>
+          </button>
+        </div>
+      )}
 
       {/* New-feature callout for problem submissions — same pattern as the
           Duel one below (dismissible, hidden for a student it's disabled

@@ -45,8 +45,14 @@ export default function StudentTestBank() {
     setLoading(true)
     const { data } = await api.get<ExamStatusOut>('/test-bank/today', { params: { language: locale } })
     setStatus(data)
-    setAnswers({})
-    setCurIdx(0)
+    // Only reset in-memory answers/position on a genuinely fresh load (no
+    // exam in progress) -- a locale toggle mid-exam re-runs this same load()
+    // (see the effect below) and must NOT wipe what's already been picked,
+    // just refresh the display text/options to the new language.
+    if (data.status !== 'in_progress') {
+      setAnswers({})
+      setCurIdx(0)
+    }
     inProgressRef.current = data.status === 'in_progress'
     setLoading(false)
   }

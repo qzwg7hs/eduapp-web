@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, Navigate } from 'react-router-dom'
 import api from '@/api/client'
+import { useAuth } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
 import { CommunityTestStatus } from '@/types'
 import LatexText from '@/components/LatexText'
@@ -9,17 +10,20 @@ import { CheckCircle2, XCircle } from 'lucide-react'
 export default function StudentCommunityTestAttemptDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { profile } = useAuth()
   const { t, locale } = useI18n()
   const [loading, setLoading] = useState(true)
   const [status, setStatus] = useState<CommunityTestStatus | null>(null)
 
   useEffect(() => {
-    if (!id) return
+    if (!id || profile?.community_test_disabled) return
     setLoading(true)
     api.get<CommunityTestStatus>(`/community-test/attempts/${id}`, { params: { language: locale } })
       .then(r => setStatus(r.data))
       .finally(() => setLoading(false))
-  }, [id, locale])
+  }, [id, locale, profile?.community_test_disabled])
+
+  if (profile?.community_test_disabled) return <Navigate to="/student" replace />
 
   if (loading || !status) {
     return (

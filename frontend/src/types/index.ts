@@ -16,6 +16,7 @@ export interface Profile {
   equipped_avatar_icon: string | null;
   duel_disabled: boolean;
   submission_disabled: boolean;
+  community_test_disabled: boolean;
 }
 
 export type ContentLanguage = 'kz' | 'ru';
@@ -86,6 +87,10 @@ export interface Problem {
   answer_text?: string | null;
   source_file_url?: string | null;
   language?: ContentLanguage;
+  // Links this problem to its kz/ru counterpart row (same value on both
+  // sides) -- used to carry an in-progress, not-yet-submitted pick across
+  // a language switch, since the id itself changes with the language.
+  pair_key?: string | null;
 }
 
 export interface UploadResult {

@@ -51,11 +51,15 @@ export default function StudentProfile() {
   useEffect(() => {
     api.get('/progress/stats').then(r => { setStats(r.data); setLoading(false) })
     api.get<ExamHistoryPoint[]>('/test-bank/history').then(r => setExamHistory(r.data)).catch(() => setExamHistory([]))
-    // Durable access point to Community Test results, independent of
-    // whether an edition is currently active — only shown below if the
-    // student has ever attempted one.
-    api.get<CommunityTestAttemptSummary[]>('/community-test/attempts').then(r => setCommunityTestAttempts(r.data)).catch(() => setCommunityTestAttempts([]))
   }, [])
+
+  // Durable access point to Community Test results, independent of whether
+  // an edition is currently active — only shown below if the student has
+  // ever attempted one.
+  useEffect(() => {
+    if (profile?.community_test_disabled) return
+    api.get<CommunityTestAttemptSummary[]>('/community-test/attempts').then(r => setCommunityTestAttempts(r.data)).catch(() => setCommunityTestAttempts([]))
+  }, [profile?.community_test_disabled])
 
   useEffect(() => {
     api.get<MonthlyLeaderboardOut>('/leaderboard/monthly', { params: { language: locale } })

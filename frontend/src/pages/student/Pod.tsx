@@ -31,13 +31,19 @@ export default function StudentPod() {
   const forfeitedRef = useRef(false)
 
   async function load() {
-    setPhase('loading')
+    // A locale toggle re-runs this same load() (see the effect below) — if
+    // the student is already mid-solve, don't flash back to the loading
+    // spinner or regress the screen to "rules" and lose their place; just
+    // refresh the question text/description to the new language in-place.
+    // Their typed answer lives in separate `answer` state untouched here.
+    const wasSolving = phase === 'solving'
+    if (!wasSolving) setPhase('loading')
     const { data } = await api.get<PodStatusOut>('/pod/today', { params: { language: locale } })
     setPod(data)
     podIdRef.current = data.pod_id ?? null
-    if (data.status === 'none') setPhase('none')
-    else if (data.status === 'locked') setPhase('locked')
-    else setPhase('rules')
+    if (data.status === 'none') { setPhase('none'); return }
+    if (data.status === 'locked') { setPhase('locked'); return }
+    if (!wasSolving) setPhase('rules')
   }
 
   useEffect(() => { load() }, [locale])
