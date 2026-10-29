@@ -885,7 +885,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'home.community_test_cta_again': 'Қайта көру →',
     'home.community_test_announcement_eyebrow': 'Оқушылардың тесті',
     'home.community_test_announcement_title': 'Оқушылар құрастырған тест',
-    'home.community_test_announcement_body': 'Есептерді оқушылардың өздері ойлап тапты! Уақыт шектеуі — 60 минут, әрекет санына шек жоқ. Қайта тапсыру немесе нәтижелерді көру кез келген уақытта мүмкін — басты беттегі 🧮 белгісі бар карточканы тауып ал.',
+    'home.community_test_announcement_body': 'Есептерді оқушылардың өздері ойлап тапты! Уақыт шектеуі — 60 минут, әрекет санына шек жоқ. Кез келген уақытта қайта тапсыруға немесе нәтижелеріңді көруге болады — басты беттегі 🧮 белгісі бар карточканы тауып ал.',
     'home.community_test_announcement_cta': 'Көру →',
     // Submit a problem (student)
     'home.submit_problem_title': 'Өз есебіңді ойлап тап',
